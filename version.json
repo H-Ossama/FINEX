@@ -1,19 +1,18 @@
- 
 {
   "_comment": "To use: Edit the \"version\" field below, then run 'npm run update-version' to sync version across all files.",
   "comment": "This field specifies the current version of the FinTracker application. Update the 'version' value following semantic versioning (MAJOR.MINOR.PATCH) whenever you release a new version. This helps in tracking changes and ensuring users are aware of the latest updates. To use this script, modify the 'version' string before each release to reflect the new version number.",
-  "version": "2.7.0",
+  "version": "3.0.0",
   "description": "Edit the version above and run 'npm run update-version' to automatically update all files",
-  "lastUpdated": "2025-11-07",
+  "lastUpdated": "2026-01-29",
   "instructions": {
-    "1": "Change the 'version' field above to your desired version (e.g., '2.6.0')",
+    "1": "Change the 'version' field above to your desired version (e.g., '3.0.0')",
     "2": "Run 'npm run update-version' to sync all files",
     "3": "Rebuild your app for changes to take effect in phone settings",
     "4": "The script will auto-increment versionCode for Android builds"
   },
   "updatedFiles": [
     "package.json",
-    "app.json", 
+    "app.json",
     "app.config.js",
     "android/app/build.gradle",
     "src/contexts/NotificationContext.tsx",

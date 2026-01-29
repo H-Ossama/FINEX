@@ -23,7 +23,7 @@ import { useDialog } from '../contexts/DialogContext';
 
 const AddBorrowedMoneyScreen = ({ navigation }: any) => {
   const { theme } = useTheme();
-  const { t } = useLocalization();
+  const { t, language } = useLocalization();
   const insets = useSafeAreaInsets();
   const dialog = useDialog();
 
@@ -36,6 +36,7 @@ const AddBorrowedMoneyScreen = ({ navigation }: any) => {
     phoneNumber: '',
     email: '',
     walletId: '',
+    type: 'borrowed' as 'borrowed' | 'lent',
   });
 
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -91,6 +92,7 @@ const AddBorrowedMoneyScreen = ({ navigation }: any) => {
       phoneNumber: '',
       email: '',
       walletId: defaultWalletId,
+      type: 'borrowed',
     });
     setAddToReminders(true);
   };
@@ -132,10 +134,11 @@ const AddBorrowedMoneyScreen = ({ navigation }: any) => {
       phoneNumber: formData.phoneNumber.trim() || undefined,
       email: formData.email.trim() || undefined,
       walletId: formData.walletId,
+      type: formData.type,
     };
 
     try {
-      await borrowedMoneyService.addBorrowedMoney(borrowedMoney);
+      await borrowedMoneyService.addBorrowedMoney(borrowedMoney, t);
 
       // The current app doesn't implement reminder creation in BorrowedMoneyService.
       // Keep the toggle for UI consistency.
@@ -152,7 +155,7 @@ const AddBorrowedMoneyScreen = ({ navigation }: any) => {
   };
 
   const formatDateForDisplay = (date: Date) => {
-    return date.toLocaleDateString('en-US', {
+    return date.toLocaleDateString(language === 'ar' ? 'ar-SA' : language, {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -209,6 +212,51 @@ const AddBorrowedMoneyScreen = ({ navigation }: any) => {
             contentContainerStyle={{ paddingBottom: 20 }}
             showsVerticalScrollIndicator={false}
           >
+            {/* Transaction Type Section */}
+            <View style={[styles.section, { backgroundColor: theme.colors.surface }]}>
+              <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>{t('transaction_type')}</Text>
+              <View style={styles.typeSelector}>
+                <TouchableOpacity
+                  style={[
+                    styles.typeButton,
+                    formData.type === 'borrowed' && { backgroundColor: theme.colors.primary },
+                  ]}
+                  onPress={() => setFormData({ ...formData, type: 'borrowed' })}
+                >
+                  <Ionicons
+                    name="arrow-down-circle"
+                    size={20}
+                    color={formData.type === 'borrowed' ? '#FFF' : theme.colors.textSecondary}
+                  />
+                  <Text style={[
+                    styles.typeButtonText,
+                    { color: formData.type === 'borrowed' ? '#FFF' : theme.colors.textSecondary }
+                  ]}>
+                    {t('i_borrowed')}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.typeButton,
+                    formData.type === 'lent' && { backgroundColor: theme.colors.primary },
+                  ]}
+                  onPress={() => setFormData({ ...formData, type: 'lent' })}
+                >
+                  <Ionicons
+                    name="arrow-up-circle"
+                    size={20}
+                    color={formData.type === 'lent' ? '#FFF' : theme.colors.textSecondary}
+                  />
+                  <Text style={[
+                    styles.typeButtonText,
+                    { color: formData.type === 'lent' ? '#FFF' : theme.colors.textSecondary }
+                  ]}>
+                    {t('i_lent')}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
             {/* Person Details Section */}
             <View style={[styles.section, { backgroundColor: theme.colors.surface }]}>
               <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>{t('person_details')}</Text>
@@ -527,6 +575,28 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: 20,
+  },
+  typeSelector: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 8,
+    marginBottom: 16,
+  },
+  typeButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'transparent',
+    backgroundColor: 'rgba(0,0,0,0.03)',
+  },
+  typeButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
   },
   section: {
     padding: 20,

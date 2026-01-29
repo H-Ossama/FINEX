@@ -49,7 +49,7 @@ const PREFERRED_WALLET_KEY = 'preferredWalletId';
 const HomeScreen = () => {
   const navigation = useNavigation();
   const { theme, isDark } = useTheme();
-  const { t, formatCurrency: formatCurrencyLoc } = useLocalization();
+  const { t, formatCurrency: formatCurrencyLoc, language } = useLocalization();
   const { state: notificationState, addNotification } = useNotification();
   const quickActions = useQuickActions();
   const { formatWalletBalance, shouldShowBalance } = useWalletVisibility();
@@ -82,7 +82,7 @@ const HomeScreen = () => {
   const [loadingData, setLoadingData] = useState(true);
   const [preferredWalletId, setPreferredWalletId] = useState<string | null>(null);
   const [isSwipingWallet, setIsSwipingWallet] = useState(false);
-  
+
   // Animation values for swipeable balance
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const hasAttemptedSampleSeed = useRef(false);
@@ -114,7 +114,7 @@ const HomeScreen = () => {
   // Load all data
   useEffect(() => {
     let isMounted = true;
-    
+
     const loadData = async () => {
       if (isMounted) {
         await loadAllData();
@@ -127,9 +127,9 @@ const HomeScreen = () => {
         }
       }
     };
-    
+
     loadData();
-    
+
     return () => {
       isMounted = false;
     };
@@ -146,7 +146,7 @@ const HomeScreen = () => {
   useFocusEffect(
     useCallback(() => {
       let isMounted = true;
-      
+
       const loadData = async () => {
         if (isMounted) {
           await loadAllData();
@@ -160,9 +160,9 @@ const HomeScreen = () => {
           }
         }
       };
-      
+
       loadData();
-      
+
       return () => {
         isMounted = false;
       };
@@ -291,7 +291,7 @@ const HomeScreen = () => {
       setTotalBorrowedAmount(0);
     }
   };
-  
+
   const displayWallets = useMemo(() => {
     const active = (wallets || []).filter((w: any) => w?.isActive !== false);
     if (!preferredWalletId) return active;
@@ -299,7 +299,7 @@ const HomeScreen = () => {
     const rest = active.filter((w: any) => w.id !== preferredWalletId);
     return preferred ? [preferred, ...rest] : active;
   }, [preferredWalletId, wallets]);
-  
+
   const WALLET_ICON_URIS: Record<string, string> = {
     CASH: 'https://img.icons8.com/ios-filled/64/ffffff/money-bag.png',
     BANK: 'https://img.icons8.com/ios-filled/64/ffffff/visa.png',
@@ -316,7 +316,7 @@ const HomeScreen = () => {
       default: return t('total_balance');
     }
   };
-  
+
   const getWalletIcon = (type: string) => {
     switch (type.toUpperCase()) {
       case 'CASH': return 'wallet-outline';
@@ -349,7 +349,7 @@ const HomeScreen = () => {
       Alert.alert('Error', 'Failed to save monthly limit');
     }
   };
-  
+
   const switchToWallet = (index: number) => {
     const safeIndex = Math.min(index, displayWallets.length - 1);
     setCurrentWalletIndex(safeIndex);
@@ -361,7 +361,7 @@ const HomeScreen = () => {
       friction: 8,
     }).start();
   };
-  
+
   // PanResponder for handling horizontal swipe gestures
   const panResponder = PanResponder.create({
     onStartShouldSetPanResponder: () => true,
@@ -382,7 +382,7 @@ const HomeScreen = () => {
       const { dx, vx } = gestureState;
       const swipeThreshold = 50;
       const velocityThreshold = 0.5;
-      
+
       if (Math.abs(dx) > swipeThreshold || Math.abs(vx) > velocityThreshold) {
         if (dx < 0 || vx < -velocityThreshold) {
           // Swipe left - next wallet
@@ -423,7 +423,7 @@ const HomeScreen = () => {
       const now = new Date();
       const currentMonth = now.getMonth();
       const currentYear = now.getFullYear();
-      
+
       const monthlySpending = recentTransactions
         .filter((tx: any) => {
           const txDate = new Date(tx.date);
@@ -477,7 +477,7 @@ const HomeScreen = () => {
         notes: expense.notes,
         categoryId: expense.categoryId
       });
-      
+
       // Refresh data after adding expense
       await loadAllData();
       console.log('Expense added successfully');
@@ -504,7 +504,7 @@ const HomeScreen = () => {
         date: income.date,
         notes: income.notes
       });
-      
+
       // Refresh data after adding income
       await loadAllData();
       console.log('Income added successfully');
@@ -531,10 +531,10 @@ const HomeScreen = () => {
 
   const processPayment = async () => {
     if (!selectedBorrowedMoneyForPayment || !selectedWallet) return;
-    
+
     try {
       setShowPaymentModal(false);
-      await borrowedMoneyService.markAsPaid(selectedBorrowedMoneyForPayment.id, selectedWallet);
+      await borrowedMoneyService.markAsPaid(selectedBorrowedMoneyForPayment.id, selectedWallet, t);
       await loadBorrowedMoneyData();
       await loadAllData();
       setShowBorrowedMoneyDetailsModal(false);
@@ -561,7 +561,7 @@ const HomeScreen = () => {
 
       // If only one wallet, use it automatically
       if (wallets.length === 1) {
-        await borrowedMoneyService.markAsPaid(id, wallets[0].id);
+        await borrowedMoneyService.markAsPaid(id, wallets[0].id, t);
         await loadBorrowedMoneyData();
         await loadAllData();
         setShowBorrowedMoneyDetailsModal(false);
@@ -599,7 +599,7 @@ const HomeScreen = () => {
 
   const handleAddBorrowedMoney = async (newItem: Omit<BorrowedMoney, 'id'>) => {
     try {
-      await borrowedMoneyService.addBorrowedMoney(newItem);
+      await borrowedMoneyService.addBorrowedMoney(newItem, t);
       await loadBorrowedMoneyData();
     } catch (error) {
       console.error('Error adding borrowed money:', error);
@@ -608,9 +608,9 @@ const HomeScreen = () => {
 
   const handleAddBorrowedMoneyWithReminder = async (newItem: Omit<BorrowedMoney, 'id'>) => {
     try {
-      const newBorrowedMoney = await borrowedMoneyService.addBorrowedMoney(newItem);
+      const newBorrowedMoney = await borrowedMoneyService.addBorrowedMoney(newItem, t);
       await loadBorrowedMoneyData();
-      
+
       // Reminder will be handled internally without navigating to reminders screen
       console.log(`Borrowed money added with reminder: ${newBorrowedMoney.id}`);
     } catch (error) {
@@ -621,7 +621,7 @@ const HomeScreen = () => {
   const formatDate = (dateString: string) => {
     if (!dateString) return t('no_date');
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
+    return date.toLocaleDateString(language === 'ar' ? 'ar-SA' : language, {
       month: 'short',
       day: 'numeric',
     });
@@ -656,8 +656,8 @@ const HomeScreen = () => {
     const iconInfo = getTransactionIcon(transaction.type, transaction.description);
 
     return (
-      <TouchableOpacity 
-        key={transaction.id} 
+      <TouchableOpacity
+        key={transaction.id}
         style={[styles.operationItem, { backgroundColor: theme.colors.surface }]}
         onPress={() => (navigation as any).navigate('TransactionsHistory')}
         activeOpacity={0.7}
@@ -699,7 +699,7 @@ const HomeScreen = () => {
       } else if (date.toDateString() === yesterday.toDateString()) {
         groupKey = t('yesterday') || 'Yesterday';
       } else {
-        groupKey = date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+        groupKey = date.toLocaleDateString(language === 'ar' ? 'ar-SA' : language, { month: 'long', day: 'numeric' });
       }
 
       if (!groups[groupKey]) {
@@ -806,7 +806,7 @@ const HomeScreen = () => {
         backgroundColor="transparent"
         translucent={true}
       />
-      
+
       {loadingData ? (
         <View style={[styles.loadingContainer, { backgroundColor: theme.colors.background }]}>
           <ActivityIndicator size="large" color={theme.colors.primary} />
@@ -850,7 +850,7 @@ const HomeScreen = () => {
                   {user?.name || t('user')}
                 </Text>
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
-                  <View style={{ 
+                  <View style={{
                     backgroundColor: isPro ? '#FFF7ED' : '#EFF6FF',
                     paddingHorizontal: 8,
                     paddingVertical: 2,
@@ -864,9 +864,9 @@ const HomeScreen = () => {
                       size={10}
                       color={isPro ? '#F59E0B' : '#1D4ED8'}
                     />
-                    <Text style={{ 
-                      fontSize: 10, 
-                      fontWeight: '700', 
+                    <Text style={{
+                      fontSize: 10,
+                      fontWeight: '700',
                       color: isPro ? '#B45309' : '#1D4ED8',
                       letterSpacing: 0.5
                     }}>
@@ -879,16 +879,16 @@ const HomeScreen = () => {
 
             <View style={styles.headerActions}>
               <TouchableOpacity
-                  style={[styles.headerIconButton, { backgroundColor: '#000000' }]}
+                style={[styles.headerIconButton, { backgroundColor: '#000000' }]}
                 onPress={() => (navigation as any).navigate('QuickSettings')}
               >
-                  <Ionicons name="settings-outline" size={20} color="#FFFFFF" />
+                <Ionicons name="settings-outline" size={20} color="#FFFFFF" />
               </TouchableOpacity>
               <TouchableOpacity
-                  style={[styles.headerIconButton, { backgroundColor: '#000000' }]}
+                style={[styles.headerIconButton, { backgroundColor: '#000000' }]}
                 onPress={() => (navigation as any).navigate('NotificationCenter')}
               >
-                  <Ionicons name="notifications-outline" size={20} color="#FFFFFF" />
+                <Ionicons name="notifications-outline" size={20} color="#FFFFFF" />
                 {notificationState.unreadCount > 0 && (
                   <View style={[styles.notificationBadge, { borderColor: theme.colors.background }]}>
                     <Text style={styles.notificationBadgeText}>
@@ -906,24 +906,24 @@ const HomeScreen = () => {
               style={[styles.balanceSwipeArea, { transform: [{ scale: scaleAnim }] }]}
               {...panResponder.panHandlers}
             >
-              <Text style={[styles.balanceLabel, { color: theme.colors.textSecondary }]}> 
-                {currentWallet?.name ? `Available on card • ${currentWallet.name}` : 'Available on card'}
+              <Text style={[styles.balanceLabel, { color: theme.colors.textSecondary }]}>
+                {currentWallet?.name ? `${t('available_on_card')} • ${currentWallet.name}` : t('available_on_card')}
               </Text>
-              <Text style={[styles.balanceAmount, { color: theme.colors.text }]}> 
+              <Text style={[styles.balanceAmount, { color: theme.colors.text }]}>
                 {formatWalletBalance(currentWallet?.balance || 0, currentWallet?.id)}
               </Text>
-              <Text style={[styles.balanceHint, { color: theme.colors.textSecondary }]}>Swipe Right/left to change card</Text>
+              <Text style={[styles.balanceHint, { color: theme.colors.textSecondary }]}>{t('swipe_hint_home')}</Text>
             </Animated.View>
 
             <View style={styles.transferRow}>
-              <Text style={[styles.transferLabel, { color: theme.colors.text }]}>Transfer Limit</Text>
+              <Text style={[styles.transferLabel, { color: theme.colors.text }]}>{t('transfer_limit')}</Text>
               <TouchableOpacity onPress={() => setShowMonthlyLimitModal(true)}>
                 <Text style={[styles.transferValue, { color: theme.colors.text }]}>{formatCurrency(monthlyLimit)}</Text>
               </TouchableOpacity>
             </View>
 
             <Text style={[styles.spentTextLight, { color: theme.colors.textSecondary }]}>
-              Spent {formatCurrency(monthlySpent)}
+              {t('spent')} {formatCurrency(monthlySpent)}
             </Text>
 
             <View style={[styles.progressTrack, { backgroundColor: theme.isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)' }]}>
@@ -971,32 +971,32 @@ const HomeScreen = () => {
             </View>
 
             <View style={styles.operationsInner}>
-            <View style={styles.operationsHeader}>
-              <Text style={[styles.operationsTitle, { color: theme.colors.text }]}>
-                {t('operations') || 'Operations'}
-              </Text>
-              <TouchableOpacity onPress={() => (navigation as any).navigate('TransactionsHistory')}>
-                <Text style={styles.viewAllText}>{t('view all') || 'View All'}</Text>
-              </TouchableOpacity>
-            </View>
-
-            {Object.entries(groupTransactionsByDate(recentTransactions)).map(([date, transactions]) => (
-              <View key={date} style={styles.transactionGroup}>
-                <Text style={[styles.groupDateLabel, { color: theme.colors.textSecondary }]}>{date}</Text>
-                {transactions.map((transaction, index) => renderTransactionItem(transaction, index))}
-              </View>
-            ))}
-
-            {recentTransactions.length === 0 && (
-              <View style={styles.emptyTransactions}>
-                <Ionicons name="receipt-outline" size={48} color={theme.colors.textSecondary} />
-                <Text style={[styles.emptyText, { color: theme.colors.textSecondary }]}>
-                  {t('no_transactions') || 'No transactions yet'}
+              <View style={styles.operationsHeader}>
+                <Text style={[styles.operationsTitle, { color: theme.colors.text }]}>
+                  {t('operations')}
                 </Text>
+                <TouchableOpacity onPress={() => (navigation as any).navigate('TransactionsHistory')}>
+                  <Text style={styles.viewAllText}>{t('view_all')}</Text>
+                </TouchableOpacity>
               </View>
-            )}
 
-            <View style={{ height: 110 }} />
+              {Object.entries(groupTransactionsByDate(recentTransactions)).map(([date, transactions]) => (
+                <View key={date} style={styles.transactionGroup}>
+                  <Text style={[styles.groupDateLabel, { color: theme.colors.textSecondary }]}>{date}</Text>
+                  {transactions.map((transaction, index) => renderTransactionItem(transaction, index))}
+                </View>
+              ))}
+
+              {recentTransactions.length === 0 && (
+                <View style={styles.emptyTransactions}>
+                  <Ionicons name="receipt-outline" size={48} color={theme.colors.textSecondary} />
+                  <Text style={[styles.emptyText, { color: theme.colors.textSecondary }]}>
+                    {t('no_transactions') || 'No transactions yet'}
+                  </Text>
+                </View>
+              )}
+
+              <View style={{ height: 110 }} />
             </View>
           </View>
         </ScrollView>
@@ -1272,7 +1272,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
   },
-  
+
   // Transaction Groups
   transactionGroup: {
     marginBottom: 16,
@@ -1284,7 +1284,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     textTransform: 'capitalize',
   },
-  
+
   // Operation Items
   operationItem: {
     flexDirection: 'row',
@@ -1323,7 +1323,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-  
+
   // Empty State
   emptyTransactions: {
     alignItems: 'center',
@@ -1334,7 +1334,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     marginTop: 12,
   },
-  
+
   // Notification Badge
   notificationBadge: {
     position: 'absolute',
@@ -1353,7 +1353,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '700',
   },
-  
+
   // Loading
   loadingContainer: {
     flex: 1,
@@ -1364,7 +1364,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     fontSize: 16,
   },
-  
+
   // Payment Modal (keeping existing styles)
   modalOverlay: {
     flex: 1,

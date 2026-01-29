@@ -61,11 +61,12 @@ const AddBorrowedMoneyModal: React.FC<AddBorrowedMoneyModalProps> = ({
     phoneNumber: '',
     email: '',
     walletId: '',
+    type: 'borrowed' as 'borrowed' | 'lent',
   });
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [addToReminders, setAddToReminders] = useState(true);
   const [wallets, setWallets] = useState<LocalWallet[]>([]);
-  
+
   useEffect(() => {
     loadWallets();
   }, [visible]);
@@ -92,6 +93,7 @@ const AddBorrowedMoneyModal: React.FC<AddBorrowedMoneyModalProps> = ({
       phoneNumber: '',
       email: '',
       walletId: wallets.length > 0 ? wallets[0].id : '',
+      type: 'borrowed',
     });
     setAddToReminders(true);
   };
@@ -106,12 +108,12 @@ const AddBorrowedMoneyModal: React.FC<AddBorrowedMoneyModalProps> = ({
       dialog.error(t('error') || 'Error', t('person_name_required'));
       return;
     }
-    
+
     if (!formData.amount.trim() || isNaN(Number(formData.amount))) {
       dialog.error(t('error') || 'Error', t('valid_amount'));
       return;
     }
-    
+
     if (!formData.reason.trim()) {
       dialog.error(t('error') || 'Error', t('reason_required'));
       return;
@@ -133,6 +135,7 @@ const AddBorrowedMoneyModal: React.FC<AddBorrowedMoneyModalProps> = ({
       phoneNumber: formData.phoneNumber.trim() || undefined,
       email: formData.email.trim() || undefined,
       walletId: formData.walletId,
+      type: formData.type,
     };
 
     if (addToReminders && onAddWithReminder) {
@@ -140,7 +143,7 @@ const AddBorrowedMoneyModal: React.FC<AddBorrowedMoneyModalProps> = ({
     } else {
       onAdd(borrowedMoney);
     }
-    
+
     resetForm();
     onClose();
   };
@@ -157,9 +160,9 @@ const AddBorrowedMoneyModal: React.FC<AddBorrowedMoneyModalProps> = ({
     if (Platform.OS === 'android') {
       setShowDatePicker(false);
     }
-    
+
     if (selectedDate) {
-      setFormData({...formData, dueDate: selectedDate});
+      setFormData({ ...formData, dueDate: selectedDate });
     }
   };
 
@@ -172,7 +175,7 @@ const AddBorrowedMoneyModal: React.FC<AddBorrowedMoneyModalProps> = ({
     >
       <View style={[styles.root, { backgroundColor: theme.colors.headerBackground }]}>
         <StatusBar barStyle="light-content" backgroundColor={theme.colors.headerBackground} />
-        
+
         {/* Dark Header */}
         <View style={[styles.darkHeader, { paddingTop: insets.top, backgroundColor: theme.colors.headerBackground }]}>
           <View style={styles.headerRow}>
@@ -198,277 +201,322 @@ const AddBorrowedMoneyModal: React.FC<AddBorrowedMoneyModalProps> = ({
         {/* Content Container with rounded top */}
         <View style={[styles.contentContainer, { backgroundColor: theme.colors.background }]}>
 
-        <KeyboardAvoidingView
-          style={styles.keyboardAvoidingView}
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
-        >
-          <ScrollView 
-            style={styles.content}
-            keyboardShouldPersistTaps="handled"
-            contentContainerStyle={{ paddingBottom: 20 }}
+          <KeyboardAvoidingView
+            style={styles.keyboardAvoidingView}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
           >
-          {/* Person Details Section */}
-          <View style={[styles.section, { backgroundColor: theme.colors.surface }]}>
-            <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
-              {t('person_details')}
-            </Text>
-            
-            <View style={styles.inputGroup}>
-              <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
-                {t('person_name')} *
-              </Text>
-              <TextInput
-                style={[styles.input, { 
-                  color: theme.colors.text, 
-                  borderColor: theme.colors.border,
-                  backgroundColor: theme.colors.background 
-                }]}
-                value={formData.personName}
-                onChangeText={(text) => setFormData({...formData, personName: text})}
-                placeholder={t('name_placeholder')}
-                placeholderTextColor={theme.colors.textSecondary}
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
-                {t('phone_number')}
-              </Text>
-              <TextInput
-                style={[styles.input, { 
-                  color: theme.colors.text, 
-                  borderColor: theme.colors.border,
-                  backgroundColor: theme.colors.background 
-                }]}
-                value={formData.phoneNumber}
-                onChangeText={(text) => setFormData({...formData, phoneNumber: text})}
-                placeholder={t('phone_placeholder')}
-                placeholderTextColor={theme.colors.textSecondary}
-                keyboardType="phone-pad"
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
-                {t('email')}
-              </Text>
-              <TextInput
-                style={[styles.input, { 
-                  color: theme.colors.text, 
-                  borderColor: theme.colors.border,
-                  backgroundColor: theme.colors.background 
-                }]}
-                value={formData.email}
-                onChangeText={(text) => setFormData({...formData, email: text})}
-                placeholder={t('email_placeholder')}
-                placeholderTextColor={theme.colors.textSecondary}
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
-            </View>
-          </View>
-
-          {/* Loan Details Section */}
-          <View style={[styles.section, { backgroundColor: theme.colors.surface }]}>
-            <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
-              {t('loan_details')}
-            </Text>
-            
-            <View style={styles.inputGroup}>
-              <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
-                {t('amount')} *
-              </Text>
-              <TextInput
-                style={[styles.input, { 
-                  color: theme.colors.text, 
-                  borderColor: theme.colors.border,
-                  backgroundColor: theme.colors.background 
-                }]}
-                value={formData.amount}
-                onChangeText={(text) => setFormData({...formData, amount: text})}
-                placeholder={t('amount_placeholder')}
-                placeholderTextColor={theme.colors.textSecondary}
-                keyboardType="numeric"
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <View style={styles.labelRow}>
-                <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
-                  Add Borrowed Money To *
-                </Text>
-                <Ionicons name="wallet" size={16} color={theme.colors.textSecondary} />
+            <ScrollView
+              style={styles.content}
+              keyboardShouldPersistTaps="handled"
+              contentContainerStyle={{ paddingBottom: 20 }}
+            >
+              {/* Transaction Type Section */}
+              <View style={[styles.section, { backgroundColor: theme.colors.surface }]}>
+                <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>{t('transaction_type')}</Text>
+                <View style={styles.typeSelector}>
+                  <TouchableOpacity
+                    style={[
+                      styles.typeButton,
+                      formData.type === 'borrowed' && { backgroundColor: theme.colors.primary },
+                    ]}
+                    onPress={() => setFormData({ ...formData, type: 'borrowed' })}
+                  >
+                    <Ionicons
+                      name="arrow-down-circle"
+                      size={20}
+                      color={formData.type === 'borrowed' ? '#FFF' : theme.colors.textSecondary}
+                    />
+                    <Text style={[
+                      styles.typeButtonText,
+                      { color: formData.type === 'borrowed' ? '#FFF' : theme.colors.textSecondary }
+                    ]}>
+                      {t('i_borrowed')}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[
+                      styles.typeButton,
+                      formData.type === 'lent' && { backgroundColor: theme.colors.primary },
+                    ]}
+                    onPress={() => setFormData({ ...formData, type: 'lent' })}
+                  >
+                    <Ionicons
+                      name="arrow-up-circle"
+                      size={20}
+                      color={formData.type === 'lent' ? '#FFF' : theme.colors.textSecondary}
+                    />
+                    <Text style={[
+                      styles.typeButtonText,
+                      { color: formData.type === 'lent' ? '#FFF' : theme.colors.textSecondary }
+                    ]}>
+                      {t('i_lent')}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-              
-              {wallets.length === 0 ? (
-                <View style={[styles.emptyWalletState, { 
-                  backgroundColor: theme.colors.background,
-                  borderColor: theme.colors.border 
-                }]}>
-                  <Ionicons name="wallet-outline" size={32} color={theme.colors.textSecondary} />
-                  <Text style={[styles.emptyWalletText, { color: theme.colors.textSecondary }]}>
-                    No wallets available
+
+              {/* Person Details Section */}
+              <View style={[styles.section, { backgroundColor: theme.colors.surface }]}>
+                <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
+                  {t('person_details')}
+                </Text>
+
+                <View style={styles.inputGroup}>
+                  <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
+                    {t('person_name')} *
                   </Text>
-                  <Text style={[styles.emptyWalletSubtext, { color: theme.colors.textSecondary }]}>
-                    Please create a wallet in the Wallet tab first
+                  <TextInput
+                    style={[styles.input, {
+                      color: theme.colors.text,
+                      borderColor: theme.colors.border,
+                      backgroundColor: theme.colors.background
+                    }]}
+                    value={formData.personName}
+                    onChangeText={(text) => setFormData({ ...formData, personName: text })}
+                    placeholder={t('name_placeholder')}
+                    placeholderTextColor={theme.colors.textSecondary}
+                  />
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
+                    {t('phone_number')}
+                  </Text>
+                  <TextInput
+                    style={[styles.input, {
+                      color: theme.colors.text,
+                      borderColor: theme.colors.border,
+                      backgroundColor: theme.colors.background
+                    }]}
+                    value={formData.phoneNumber}
+                    onChangeText={(text) => setFormData({ ...formData, phoneNumber: text })}
+                    placeholder={t('phone_placeholder')}
+                    placeholderTextColor={theme.colors.textSecondary}
+                    keyboardType="phone-pad"
+                  />
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
+                    {t('email')}
+                  </Text>
+                  <TextInput
+                    style={[styles.input, {
+                      color: theme.colors.text,
+                      borderColor: theme.colors.border,
+                      backgroundColor: theme.colors.background
+                    }]}
+                    value={formData.email}
+                    onChangeText={(text) => setFormData({ ...formData, email: text })}
+                    placeholder={t('email_placeholder')}
+                    placeholderTextColor={theme.colors.textSecondary}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                  />
+                </View>
+              </View>
+
+              {/* Loan Details Section */}
+              <View style={[styles.section, { backgroundColor: theme.colors.surface }]}>
+                <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
+                  {t('loan_details')}
+                </Text>
+
+                <View style={styles.inputGroup}>
+                  <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
+                    {t('amount')} *
+                  </Text>
+                  <TextInput
+                    style={[styles.input, {
+                      color: theme.colors.text,
+                      borderColor: theme.colors.border,
+                      backgroundColor: theme.colors.background
+                    }]}
+                    value={formData.amount}
+                    onChangeText={(text) => setFormData({ ...formData, amount: text })}
+                    placeholder={t('amount_placeholder')}
+                    placeholderTextColor={theme.colors.textSecondary}
+                    keyboardType="numeric"
+                  />
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <View style={styles.labelRow}>
+                    <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
+                      Add Borrowed Money To *
+                    </Text>
+                    <Ionicons name="wallet" size={16} color={theme.colors.textSecondary} />
+                  </View>
+
+                  {wallets.length === 0 ? (
+                    <View style={[styles.emptyWalletState, {
+                      backgroundColor: theme.colors.background,
+                      borderColor: theme.colors.border
+                    }]}>
+                      <Ionicons name="wallet-outline" size={32} color={theme.colors.textSecondary} />
+                      <Text style={[styles.emptyWalletText, { color: theme.colors.textSecondary }]}>
+                        No wallets available
+                      </Text>
+                      <Text style={[styles.emptyWalletSubtext, { color: theme.colors.textSecondary }]}>
+                        Please create a wallet in the Wallet tab first
+                      </Text>
+                    </View>
+                  ) : (
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      style={styles.walletSelector}
+                      contentContainerStyle={styles.walletSelectorContent}
+                    >
+                      {wallets.map((wallet) => (
+                        <TouchableOpacity
+                          key={wallet.id}
+                          style={[
+                            styles.walletOption,
+                            {
+                              backgroundColor: formData.walletId === wallet.id
+                                ? theme.colors.primary
+                                : theme.colors.background,
+                              borderColor: formData.walletId === wallet.id
+                                ? theme.colors.primary
+                                : theme.colors.border,
+                            }
+                          ]}
+                          onPress={() => setFormData({ ...formData, walletId: wallet.id })}
+                          activeOpacity={0.7}
+                        >
+                          <View style={[
+                            styles.walletIconCircle,
+                            {
+                              backgroundColor: formData.walletId === wallet.id
+                                ? 'rgba(255,255,255,0.2)'
+                                : theme.colors.surface
+                            }
+                          ]}>
+                            <Ionicons
+                              name={getWalletIoniconName(wallet) as any}
+                              size={22}
+                              color={formData.walletId === wallet.id ? 'white' : theme.colors.text}
+                            />
+                          </View>
+                          <View style={styles.walletInfo}>
+                            <Text style={[
+                              styles.walletOptionText,
+                              {
+                                color: formData.walletId === wallet.id ? 'white' : theme.colors.text,
+                                fontWeight: formData.walletId === wallet.id ? '600' : '500'
+                              }
+                            ]}>
+                              {wallet.name}
+                            </Text>
+                            {formData.walletId === wallet.id && (
+                              <Ionicons name="checkmark-circle" size={16} color="white" />
+                            )}
+                          </View>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+                  )}
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
+                    {t('reason')} *
+                  </Text>
+                  <TextInput
+                    style={[styles.input, {
+                      color: theme.colors.text,
+                      borderColor: theme.colors.border,
+                      backgroundColor: theme.colors.background
+                    }]}
+                    value={formData.reason}
+                    onChangeText={(text) => setFormData({ ...formData, reason: text })}
+                    placeholder={t('reason_placeholder')}
+                    placeholderTextColor={theme.colors.textSecondary}
+                  />
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
+                    {t('due_date')} *
+                  </Text>
+                  <TouchableOpacity
+                    style={[styles.datePickerButton, {
+                      borderColor: theme.colors.border,
+                      backgroundColor: theme.colors.background
+                    }]}
+                    onPress={() => setShowDatePicker(true)}
+                  >
+                    <Text style={[styles.datePickerText, { color: theme.colors.text }]}>
+                      {formatDateForDisplay(formData.dueDate)}
+                    </Text>
+                    <Ionicons name="calendar-outline" size={20} color={theme.colors.textSecondary} />
+                  </TouchableOpacity>
+
+                  {showDatePicker && (
+                    <DateTimePicker
+                      value={formData.dueDate}
+                      mode="date"
+                      display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                      onChange={handleDateChange}
+                      minimumDate={new Date()}
+                    />
+                  )}
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
+                    {t('notes')}
+                  </Text>
+                  <TextInput
+                    style={[styles.textArea, {
+                      color: theme.colors.text,
+                      borderColor: theme.colors.border,
+                      backgroundColor: theme.colors.background
+                    }]}
+                    value={formData.notes}
+                    onChangeText={(text) => setFormData({ ...formData, notes: text })}
+                    placeholder={t('notes_placeholder')}
+                    placeholderTextColor={theme.colors.textSecondary}
+                    multiline
+                    numberOfLines={4}
+                    textAlignVertical="top"
+                  />
+                </View>
+              </View>
+
+              <View style={styles.disclaimer}>
+                <Text style={[styles.disclaimerText, { color: theme.colors.textSecondary }]}>
+                  {t('required_fields')}
+                </Text>
+              </View>
+
+              {/* Add to Reminders Toggle */}
+              <View style={[styles.reminderSection, { backgroundColor: theme.colors.surface }]}>
+                <View style={styles.reminderHeader}>
+                  <Ionicons name="notifications-outline" size={20} color={theme.colors.primary} />
+                  <Text style={[styles.reminderTitle, { color: theme.colors.text }]}>
+                    {t('add_reminder')}
                   </Text>
                 </View>
-              ) : (
-                <ScrollView 
-                  horizontal 
-                  showsHorizontalScrollIndicator={false}
-                  style={styles.walletSelector}
-                  contentContainerStyle={styles.walletSelectorContent}
-                >
-                  {wallets.map((wallet) => (
-                    <TouchableOpacity
-                      key={wallet.id}
-                      style={[
-                        styles.walletOption,
-                        {
-                          backgroundColor: formData.walletId === wallet.id 
-                            ? theme.colors.primary 
-                            : theme.colors.background,
-                          borderColor: formData.walletId === wallet.id
-                            ? theme.colors.primary
-                            : theme.colors.border,
-                        }
-                      ]}
-                      onPress={() => setFormData({...formData, walletId: wallet.id})}
-                      activeOpacity={0.7}
-                    >
-                      <View style={[
-                        styles.walletIconCircle,
-                        {
-                          backgroundColor: formData.walletId === wallet.id 
-                            ? 'rgba(255,255,255,0.2)' 
-                            : theme.colors.surface
-                        }
-                      ]}>
-                        <Ionicons 
-                          name={getWalletIoniconName(wallet) as any} 
-                          size={22} 
-                          color={formData.walletId === wallet.id ? 'white' : theme.colors.text}
-                        />
-                      </View>
-                      <View style={styles.walletInfo}>
-                        <Text style={[
-                          styles.walletOptionText,
-                          {
-                            color: formData.walletId === wallet.id ? 'white' : theme.colors.text,
-                            fontWeight: formData.walletId === wallet.id ? '600' : '500'
-                          }
-                        ]}>
-                          {wallet.name}
-                        </Text>
-                        {formData.walletId === wallet.id && (
-                          <Ionicons name="checkmark-circle" size={16} color="white" />
-                        )}
-                      </View>
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-              )}
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
-                {t('reason')} *
-              </Text>
-              <TextInput
-                style={[styles.input, { 
-                  color: theme.colors.text, 
-                  borderColor: theme.colors.border,
-                  backgroundColor: theme.colors.background 
-                }]}
-                value={formData.reason}
-                onChangeText={(text) => setFormData({...formData, reason: text})}
-                placeholder={t('reason_placeholder')}
-                placeholderTextColor={theme.colors.textSecondary}
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
-                {t('due_date')} * 
-              </Text>
-              <TouchableOpacity
-                style={[styles.datePickerButton, { 
-                  borderColor: theme.colors.border,
-                  backgroundColor: theme.colors.background 
-                }]}
-                onPress={() => setShowDatePicker(true)}
-              >
-                <Text style={[styles.datePickerText, { color: theme.colors.text }]}>
-                  {formatDateForDisplay(formData.dueDate)}
+                <Text style={[styles.reminderSubtitle, { color: theme.colors.textSecondary }]}>
+                  {t('reminder_subtitle')}
                 </Text>
-                <Ionicons name="calendar-outline" size={20} color={theme.colors.textSecondary} />
-              </TouchableOpacity>
-              
-              {showDatePicker && (
-                <DateTimePicker
-                  value={formData.dueDate}
-                  mode="date"
-                  display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                  onChange={handleDateChange}
-                  minimumDate={new Date()}
-                />
-              )}
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={[styles.label, { color: theme.colors.textSecondary }]}>
-                {t('notes')}
-              </Text>
-              <TextInput
-                style={[styles.textArea, { 
-                  color: theme.colors.text, 
-                  borderColor: theme.colors.border,
-                  backgroundColor: theme.colors.background 
-                }]}
-                value={formData.notes}
-                onChangeText={(text) => setFormData({...formData, notes: text})}
-                placeholder={t('notes_placeholder')}
-                placeholderTextColor={theme.colors.textSecondary}
-                multiline
-                numberOfLines={4}
-                textAlignVertical="top"
-              />
-            </View>
-          </View>
-
-          <View style={styles.disclaimer}>
-            <Text style={[styles.disclaimerText, { color: theme.colors.textSecondary }]}>
-              {t('required_fields')}
-            </Text>
-          </View>
-
-          {/* Add to Reminders Toggle */}
-          <View style={[styles.reminderSection, { backgroundColor: theme.colors.surface }]}>
-            <View style={styles.reminderHeader}>
-              <Ionicons name="notifications-outline" size={20} color={theme.colors.primary} />
-              <Text style={[styles.reminderTitle, { color: theme.colors.text }]}>
-                {t('add_reminder')}
-              </Text>
-            </View>
-            <Text style={[styles.reminderSubtitle, { color: theme.colors.textSecondary }]}>
-              {t('reminder_subtitle')}
-            </Text>
-            <TouchableOpacity 
-              style={[styles.reminderToggle, { 
-                backgroundColor: addToReminders ? theme.colors.primary : theme.colors.border 
-              }]}
-              onPress={() => setAddToReminders(!addToReminders)}
-            >
-              <View style={[styles.reminderToggleKnob, {
-                transform: [{ translateX: addToReminders ? 20 : 0 }],
-                backgroundColor: 'white'
-              }]} />
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
-        </KeyboardAvoidingView>
+                <TouchableOpacity
+                  style={[styles.reminderToggle, {
+                    backgroundColor: addToReminders ? theme.colors.primary : theme.colors.border
+                  }]}
+                  onPress={() => setAddToReminders(!addToReminders)}
+                >
+                  <View style={[styles.reminderToggleKnob, {
+                    transform: [{ translateX: addToReminders ? 20 : 0 }],
+                    backgroundColor: 'white'
+                  }]} />
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
+          </KeyboardAvoidingView>
         </View>
       </View>
     </Modal>
@@ -528,6 +576,28 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: 20,
+  },
+  typeSelector: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 8,
+    marginBottom: 8,
+  },
+  typeButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'transparent',
+    backgroundColor: 'rgba(0,0,0,0.03)',
+  },
+  typeButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
   },
   section: {
     padding: 20,

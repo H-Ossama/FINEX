@@ -79,10 +79,10 @@ const BorrowedMoneyHistoryScreen = ({ navigation }: any) => {
 
   const processPayment = async () => {
     if (!selectedBorrowedMoneyForPayment || !selectedWallet) return;
-    
+
     try {
       setShowPaymentModal(false);
-      await borrowedMoneyService.markAsPaid(selectedBorrowedMoneyForPayment.id, selectedWallet);
+      await borrowedMoneyService.markAsPaid(selectedBorrowedMoneyForPayment.id, selectedWallet, t);
       await loadBorrowedMoneyData();
       setShowDetailsModal(false);
       setSelectedBorrowedMoneyForPayment(null);
@@ -116,7 +116,7 @@ const BorrowedMoneyHistoryScreen = ({ navigation }: any) => {
 
       // If only one wallet, use it automatically
       if (wallets.length === 1) {
-        await borrowedMoneyService.markAsPaid(id, wallets[0].id);
+        await borrowedMoneyService.markAsPaid(id, wallets[0].id, t);
         await loadBorrowedMoneyData();
         setShowDetailsModal(false);
         dialog.success(
@@ -162,11 +162,15 @@ const BorrowedMoneyHistoryScreen = ({ navigation }: any) => {
     return true;
   });
 
-  const totalPending = borrowedMoneyList
-    .filter(item => !item.isPaid)
+  const totalBorrowedPending = borrowedMoneyList
+    .filter(item => !item.isPaid && item.type === 'borrowed')
     .reduce((sum, item) => sum + item.amount, 0);
 
-  const totalPaid = borrowedMoneyList
+  const totalLentPending = borrowedMoneyList
+    .filter(item => !item.isPaid && item.type === 'lent')
+    .reduce((sum, item) => sum + item.amount, 0);
+
+  const totalCompleted = borrowedMoneyList
     .filter(item => item.isPaid)
     .reduce((sum, item) => sum + item.amount, 0);
 
@@ -192,12 +196,12 @@ const BorrowedMoneyHistoryScreen = ({ navigation }: any) => {
 
   const renderBorrowedMoneyItem = ({ item }: { item: BorrowedMoney }) => {
     const overdue = isOverdue(item.dueDate, item.isPaid);
-    const statusColor = item.isPaid 
-      ? theme.colors.success 
-      : overdue 
-        ? '#FF3B30' 
+    const statusColor = item.isPaid
+      ? theme.colors.success
+      : overdue
+        ? '#FF3B30'
         : '#FF9500';
-    
+
     return (
       <TouchableOpacity
         style={[
@@ -213,17 +217,17 @@ const BorrowedMoneyHistoryScreen = ({ navigation }: any) => {
       >
         {/* Left colored indicator */}
         <View style={[styles.cardIndicator, { backgroundColor: statusColor }]} />
-        
+
         <View style={styles.cardContent}>
           <View style={styles.cardHeader}>
             <View style={styles.personRow}>
               <View
                 style={[
                   styles.avatar,
-                  { 
-                    backgroundColor: item.isPaid 
+                  {
+                    backgroundColor: item.isPaid
                       ? theme.isDark ? 'rgba(52, 211, 153, 0.15)' : 'rgba(16, 185, 129, 0.1)'
-                      : overdue 
+                      : overdue
                         ? theme.isDark ? 'rgba(248, 113, 113, 0.15)' : 'rgba(239, 68, 68, 0.1)'
                         : theme.isDark ? 'rgba(251, 191, 36, 0.15)' : 'rgba(245, 158, 11, 0.1)',
                   },
@@ -234,15 +238,28 @@ const BorrowedMoneyHistoryScreen = ({ navigation }: any) => {
                 </Text>
               </View>
               <View style={styles.personInfo}>
-                <Text style={[styles.personName, { color: theme.colors.text }]} numberOfLines={1}>
-                  {item.personName}
-                </Text>
+                <View style={styles.personHeaderRow}>
+                  <Text style={[styles.personName, { color: theme.colors.text }]} numberOfLines={1}>
+                    {item.personName}
+                  </Text>
+                  <View style={[
+                    styles.typeBadge,
+                    { backgroundColor: item.type === 'lent' ? 'rgba(52, 211, 153, 0.1)' : 'rgba(239, 68, 68, 0.1)' }
+                  ]}>
+                    <Text style={[
+                      styles.typeBadgeText,
+                      { color: item.type === 'lent' ? theme.colors.success : '#EF4444' }
+                    ]}>
+                      {item.type === 'lent' ? t('lent_label') : t('borrowed_label')}
+                    </Text>
+                  </View>
+                </View>
                 <Text style={[styles.reason, { color: theme.colors.textSecondary }]} numberOfLines={1}>
                   {item.reason}
                 </Text>
               </View>
             </View>
-            
+
             <View style={styles.amountColumn}>
               <Text style={[styles.amount, { color: theme.colors.text }]}>
                 {formatCurrency(item.amount)}
@@ -255,7 +272,7 @@ const BorrowedMoneyHistoryScreen = ({ navigation }: any) => {
               </View>
             </View>
           </View>
-          
+
           <View style={styles.cardFooter}>
             <View style={styles.dateRow}>
               <View style={styles.dateItem}>
@@ -266,28 +283,28 @@ const BorrowedMoneyHistoryScreen = ({ navigation }: any) => {
               </View>
               <View style={styles.dateDivider} />
               <View style={styles.dateItem}>
-                <Ionicons 
-                  name="alarm-outline" 
-                  size={14} 
-                  color={overdue ? '#FF3B30' : theme.colors.textSecondary} 
+                <Ionicons
+                  name="alarm-outline"
+                  size={14}
+                  color={overdue ? '#FF3B30' : theme.colors.textSecondary}
                 />
                 <Text style={[
-                  styles.dateLabel, 
+                  styles.dateLabel,
                   { color: overdue ? '#FF3B30' : theme.colors.textSecondary }
                 ]}>
                   {formatDate(item.dueDate)}
                 </Text>
               </View>
             </View>
-            
+
             <View style={[
               styles.cardChevron,
               { backgroundColor: theme.isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)' }
             ]}>
-              <Ionicons 
-                name="chevron-forward" 
-                size={16} 
-                color={theme.colors.textSecondary} 
+              <Ionicons
+                name="chevron-forward"
+                size={16}
+                color={theme.colors.textSecondary}
               />
             </View>
           </View>
@@ -317,18 +334,18 @@ const BorrowedMoneyHistoryScreen = ({ navigation }: any) => {
           end={{ x: 1, y: 1 }}
           style={styles.statCard}
         >
-          <View style={[styles.statIcon, { backgroundColor: 'rgba(255, 149, 0, 0.2)' }]}>
-            <Ionicons name="hourglass-outline" size={22} color="#FF9500" />
+          <View style={[styles.statIcon, { backgroundColor: 'rgba(239, 68, 68, 0.2)' }]}>
+            <Ionicons name="arrow-down-circle-outline" size={22} color="#EF4444" />
           </View>
           <View style={styles.statInfo}>
             <Text style={[styles.statLabel, { color: theme.colors.textSecondary }]}>
-              {t('total_pending')}
+              {t('total_borrowed_pending')}
             </Text>
-            <Text style={[styles.statValue, { color: '#FF9500' }]}>
-              {formatCurrency(totalPending)}
+            <Text style={[styles.statValue, { color: '#EF4444' }]}>
+              {formatCurrency(totalBorrowedPending)}
             </Text>
             <Text style={[styles.statCount, { color: theme.colors.textSecondary }]}>
-              {borrowedMoneyList.filter(i => !i.isPaid).length} {t('active')}
+              {borrowedMoneyList.filter(i => !i.isPaid && i.type === 'borrowed').length} {t('active')}
             </Text>
           </View>
         </LinearGradient>
@@ -344,14 +361,40 @@ const BorrowedMoneyHistoryScreen = ({ navigation }: any) => {
           style={styles.statCard}
         >
           <View style={[styles.statIcon, { backgroundColor: 'rgba(16, 185, 129, 0.2)' }]}>
-            <Ionicons name="checkmark-circle-outline" size={22} color={theme.colors.success} />
+            <Ionicons name="arrow-up-circle-outline" size={22} color={theme.colors.success} />
+          </View>
+          <View style={styles.statInfo}>
+            <Text style={[styles.statLabel, { color: theme.colors.textSecondary }]}>
+              {t('total_lent_pending')}
+            </Text>
+            <Text style={[styles.statValue, { color: theme.colors.success }]}>
+              {formatCurrency(totalLentPending)}
+            </Text>
+            <Text style={[styles.statCount, { color: theme.colors.textSecondary }]}>
+              {borrowedMoneyList.filter(i => !i.isPaid && i.type === 'lent').length} {t('active')}
+            </Text>
+          </View>
+        </LinearGradient>
+
+        <LinearGradient
+          colors={
+            theme.isDark
+              ? ['rgba(99, 102, 241, 0.15)', 'rgba(99, 102, 241, 0.05)']
+              : ['#F5F3FF', '#EDE9FE']
+          }
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.statCard}
+        >
+          <View style={[styles.statIcon, { backgroundColor: 'rgba(139, 92, 246, 0.2)' }]}>
+            <Ionicons name="checkmark-circle-outline" size={22} color="#8B5CF6" />
           </View>
           <View style={styles.statInfo}>
             <Text style={[styles.statLabel, { color: theme.colors.textSecondary }]}>
               {t('total_paid')}
             </Text>
-            <Text style={[styles.statValue, { color: theme.colors.success }]}>
-              {formatCurrency(totalPaid)}
+            <Text style={[styles.statValue, { color: '#8B5CF6' }]}>
+              {formatCurrency(totalCompleted)}
             </Text>
             <Text style={[styles.statCount, { color: theme.colors.textSecondary }]}>
               {borrowedMoneyList.filter(i => i.isPaid).length} {t('completed')}
@@ -588,12 +631,12 @@ const BorrowedMoneyHistoryScreen = ({ navigation }: any) => {
 
   return (
     <SafeAreaView style={[styles.root, { backgroundColor: 'transparent' }]} edges={['top']}>
-      <StatusBar 
+      <StatusBar
         barStyle={theme.isDark ? "light-content" : "dark-content"}
         backgroundColor="transparent"
         translucent
       />
-      
+
       {/* Modern Header */}
       <LinearGradient
         colors={
@@ -607,18 +650,18 @@ const BorrowedMoneyHistoryScreen = ({ navigation }: any) => {
       >
         <View style={styles.headerContent}>
           <View style={styles.headerTop}>
-            <TouchableOpacity 
-              onPress={() => navigation.goBack()} 
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
               style={[
-                styles.backButton, 
-                { 
+                styles.backButton,
+                {
                   backgroundColor: theme.isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)',
                 }
               ]}
             >
               <Ionicons name="arrow-back" size={22} color={theme.colors.text} />
             </TouchableOpacity>
-            
+
             <View style={styles.headerTitleContainer}>
               <Text style={[styles.headerTitle, { color: theme.colors.text }]}>
                 {t('borrowed_money_history')}
@@ -627,9 +670,9 @@ const BorrowedMoneyHistoryScreen = ({ navigation }: any) => {
                 {borrowedMoneyList.length} {borrowedMoneyList.length === 1 ? 'record' : 'records'}
               </Text>
             </View>
-            
-            <TouchableOpacity 
-              onPress={() => (navigation as any).navigate('AddBorrowedMoney')} 
+
+            <TouchableOpacity
+              onPress={() => (navigation as any).navigate('AddBorrowedMoney')}
               style={[
                 styles.addButton,
                 { backgroundColor: theme.colors.primary }
@@ -640,7 +683,7 @@ const BorrowedMoneyHistoryScreen = ({ navigation }: any) => {
           </View>
         </View>
       </LinearGradient>
-      
+
       {/* Content Container */}
       <View style={[styles.contentContainer, { backgroundColor: theme.colors.background }]}>
         {loading ? (
@@ -662,12 +705,12 @@ const BorrowedMoneyHistoryScreen = ({ navigation }: any) => {
             ListFooterComponent={
               filteredList.length > 0
                 ? () => (
-                    <View style={styles.listFooter}>
-                      <Text style={[styles.listFooterText, { color: theme.colors.textSecondary }]}>
-                        {filteredList.length} {filteredList.length === 1 ? 'record' : 'records'}
-                      </Text>
-                    </View>
-                  )
+                  <View style={styles.listFooter}>
+                    <Text style={[styles.listFooterText, { color: theme.colors.textSecondary }]}>
+                      {filteredList.length} {filteredList.length === 1 ? 'record' : 'records'}
+                    </Text>
+                  </View>
+                )
                 : null
             }
             refreshing={refreshing}
@@ -893,6 +936,22 @@ const styles = StyleSheet.create({
   personInfo: {
     flex: 1,
     gap: 3,
+  },
+  personHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 2,
+  },
+  typeBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
+  },
+  typeBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    textTransform: 'uppercase',
   },
   personName: {
     fontSize: 16,

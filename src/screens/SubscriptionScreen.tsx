@@ -15,10 +15,10 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { useTheme } from '../contexts/ThemeContext';
 import { useLocalization } from '../contexts/LocalizationContext';
-import { 
-  useSubscription, 
+import {
+  useSubscription,
   SUBSCRIPTION_PRICING,
-  BillingPeriod 
+  BillingPeriod
 } from '../contexts/SubscriptionContext';
 import { useDialog } from '../contexts/DialogContext';
 
@@ -31,11 +31,11 @@ const SubscriptionScreen: React.FC<Props> = ({ navigation }) => {
   const { t } = useLocalization();
   const insets = useSafeAreaInsets();
   const dialog = useDialog();
-  const { 
-    planId, 
-    isPro, 
-    isLoading, 
-    setPlan, 
+  const {
+    planId,
+    isPro,
+    isLoading,
+    setPlan,
     limits,
     billingPeriod,
     setBillingPeriod,
@@ -97,11 +97,11 @@ const SubscriptionScreen: React.FC<Props> = ({ navigation }) => {
     // Simulate restore process
     await new Promise(resolve => setTimeout(resolve, 1500));
     setSaving(false);
-    
+
     dialog.alert(
       t('subscription_restore_title') || 'Restore purchases',
       t('subscription_restore_message') ||
-        'No active subscription was found for this Google account. If you just purchased, wait a minute and try again.'
+      'No active subscription was found for this Google account. If you just purchased, wait a minute and try again.'
     );
   };
 
@@ -153,7 +153,7 @@ const SubscriptionScreen: React.FC<Props> = ({ navigation }) => {
               <Text style={[styles.detailsTitle, { color: theme.colors.text }]}>
                 {t('subscription_details') || 'Subscription Details'}
               </Text>
-              
+
               <View style={styles.detailRow}>
                 <Text style={[styles.detailLabel, { color: theme.colors.textSecondary }]}>
                   {t('subscription_plan') || 'Plan'}
@@ -174,7 +174,7 @@ const SubscriptionScreen: React.FC<Props> = ({ navigation }) => {
                 </View>
               </View>
 
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.manageButton}
                 onPress={handleManageSubscription}
               >
@@ -323,8 +323,8 @@ const SubscriptionScreen: React.FC<Props> = ({ navigation }) => {
                 style={[
                   styles.billingOption,
                   billingPeriod === 'yearly' && styles.billingOptionSelected,
-                  { 
-                    backgroundColor: billingPeriod === 'yearly' 
+                  {
+                    backgroundColor: billingPeriod === 'yearly'
                       ? (isDark ? '#1F1F23' : '#FFFFFF')
                       : 'transparent',
                     borderColor: billingPeriod === 'yearly' ? '#F59E0B' : theme.colors.border,
@@ -344,7 +344,7 @@ const SubscriptionScreen: React.FC<Props> = ({ navigation }) => {
                   {SUBSCRIPTION_PRICING.yearly.displayPrice}
                 </Text>
                 <Text style={[styles.billingEquivalent, { color: theme.colors.textSecondary }]}>
-                  {SUBSCRIPTION_PRICING.yearly.monthlyEquivalent} · billed yearly
+                  {SUBSCRIPTION_PRICING.yearly.monthlyEquivalent} · {t('billed_yearly')}
                 </Text>
                 <View style={styles.savingsBadge}>
                   <Text style={styles.savingsText}>
@@ -357,8 +357,8 @@ const SubscriptionScreen: React.FC<Props> = ({ navigation }) => {
                 style={[
                   styles.billingOption,
                   billingPeriod === 'monthly' && styles.billingOptionSelected,
-                  { 
-                    backgroundColor: billingPeriod === 'monthly' 
+                  {
+                    backgroundColor: billingPeriod === 'monthly'
                       ? (isDark ? '#1F1F23' : '#FFFFFF')
                       : 'transparent',
                     borderColor: billingPeriod === 'monthly' ? '#F59E0B' : theme.colors.border,
@@ -397,8 +397,8 @@ const SubscriptionScreen: React.FC<Props> = ({ navigation }) => {
                   <>
                     <Ionicons name="diamond" size={22} color="#FFFFFF" />
                     <Text style={styles.upgradeButtonText}>
-                      {t('subscription_upgrade_button') || 'Continue'}
-                      {billingPeriod === 'yearly' ? ' • Yearly' : ' • Monthly'}
+                      {t('subscription_upgrade_button')}
+                      {billingPeriod === 'yearly' ? ` • ${t('subscription_yearly')}` : ` • ${t('subscription_monthly')}`}
                     </Text>
                   </>
                 )}
@@ -408,12 +408,12 @@ const SubscriptionScreen: React.FC<Props> = ({ navigation }) => {
             {/* Trust Signals */}
             <View style={styles.trustSection}>
               <Text style={[styles.trustText, { color: theme.colors.textSecondary }]}>
-                {t('subscription_cancel_anytime') || 'Cancel anytime'} · {t('subscription_managed_google') || 'Managed in Google Play'} · Renews automatically
+                {t('subscription_cancel_anytime')} · {t('subscription_managed_google')} · {t('subscription_renews_automatically') || 'Renews automatically'}
               </Text>
             </View>
 
             {/* Restore Purchases */}
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.restoreButton}
               onPress={handleRestorePurchases}
               disabled={saving}
@@ -424,7 +424,7 @@ const SubscriptionScreen: React.FC<Props> = ({ navigation }) => {
             </TouchableOpacity>
 
             {/* Manage Subscription */}
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.restoreButton}
               onPress={handleManageSubscription}
               disabled={saving}
@@ -526,7 +526,7 @@ const createStyles = (theme: any, isDark: boolean) =>
       fontSize: 14,
       fontWeight: '600',
     },
-    
+
     // Hero Section
     heroSection: {
       alignItems: 'center',

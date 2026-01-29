@@ -54,6 +54,7 @@ export interface BorrowedMoney {
   dueDate: string;
   isPaid: boolean;
   walletId: string;
+  type: 'borrowed' | 'lent';
   notes?: string;
   phoneNumber?: string;
   email?: string;

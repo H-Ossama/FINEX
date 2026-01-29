@@ -48,13 +48,13 @@ interface FilterState {
 const TransactionsHistoryScreen = () => {
   const navigation = useNavigation();
   const { theme } = useTheme();
-  const { formatCurrency, t } = useLocalization();
+  const { formatCurrency, t, language } = useLocalization();
   const { user } = useAuth();
   const insets = useSafeAreaInsets();
   const { adsEnabled } = useAds();
   const { showInterstitialIfNeeded, InterstitialComponent } = useInterstitialAd('TransactionsHistory');
   const dialog = useDialog();
-  
+
   const [transactions, setTransactions] = useState<HybridTransaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -115,7 +115,7 @@ const TransactionsHistoryScreen = () => {
     // Filter by search
     if (filter.search) {
       const searchLower = filter.search.toLowerCase();
-      filtered = filtered.filter(t => 
+      filtered = filtered.filter(t =>
         t.description?.toLowerCase().includes(searchLower) ||
         t.notes?.toLowerCase().includes(searchLower) ||
         t.amount.toString().includes(searchLower)
@@ -126,7 +126,7 @@ const TransactionsHistoryScreen = () => {
     if (filter.dateRange !== 'all') {
       const now = new Date();
       const filterDate = new Date();
-      
+
       switch (filter.dateRange) {
         case 'week':
           filterDate.setDate(now.getDate() - 7);
@@ -138,7 +138,7 @@ const TransactionsHistoryScreen = () => {
           filterDate.setFullYear(now.getFullYear() - 1);
           break;
       }
-      
+
       filtered = filtered.filter(t => new Date(t.date) >= filterDate);
     }
 
@@ -156,10 +156,10 @@ const TransactionsHistoryScreen = () => {
   // Group transactions by date
   const groupedTransactions = useMemo(() => {
     const groups: { [key: string]: GroupedTransaction } = {};
-    
+
     filteredTransactions.forEach(transaction => {
       const dateKey = new Date(transaction.date).toDateString();
-      
+
       if (!groups[dateKey]) {
         groups[dateKey] = {
           date: dateKey,
@@ -168,17 +168,17 @@ const TransactionsHistoryScreen = () => {
           totalExpense: 0,
         };
       }
-      
+
       groups[dateKey].transactions.push(transaction);
-      
+
       if (transaction.type === 'INCOME') {
         groups[dateKey].totalIncome += transaction.amount;
       } else if (transaction.type === 'EXPENSE') {
         groups[dateKey].totalExpense += transaction.amount;
       }
     });
-    
-    return Object.values(groups).sort((a, b) => 
+
+    return Object.values(groups).sort((a, b) =>
       new Date(b.date).getTime() - new Date(a.date).getTime()
     );
   }, [filteredTransactions]);
@@ -188,16 +188,16 @@ const TransactionsHistoryScreen = () => {
     const income = filteredTransactions
       .filter(t => t.type === 'INCOME')
       .reduce((sum, t) => sum + t.amount, 0);
-    
+
     const expense = filteredTransactions
       .filter(t => t.type === 'EXPENSE')
       .reduce((sum, t) => sum + t.amount, 0);
-    
+
     const transfers = filteredTransactions.filter(t => t.type === 'TRANSFER').length;
-    const avgTransaction = filteredTransactions.length > 0 
-      ? (income + expense) / filteredTransactions.length 
+    const avgTransaction = filteredTransactions.length > 0
+      ? (income + expense) / filteredTransactions.length
       : 0;
-    
+
     return {
       income,
       expense,
@@ -211,13 +211,13 @@ const TransactionsHistoryScreen = () => {
   const toggleSearch = () => {
     const newVisible = !searchVisible;
     setSearchVisible(newVisible);
-    
+
     Animated.timing(animatedValues.searchHeight, {
       toValue: newVisible ? 60 : 0,
       duration: 300,
       useNativeDriver: false,
     }).start();
-    
+
     if (!newVisible) {
       setFilter(prev => ({ ...prev, search: '' }));
     }
@@ -226,25 +226,25 @@ const TransactionsHistoryScreen = () => {
   const getTransactionIcon = (type: string, description?: string) => {
     if (type === 'INCOME') return { name: 'trending-up', color: theme.colors.success };
     if (type === 'TRANSFER') return { name: 'swap-horizontal', color: theme.colors.primary };
-    
+
     // Smart categorization for expenses
     const desc = description?.toLowerCase() || '';
-    
-    if (desc.includes('food') || desc.includes('restaurant') || desc.includes('grocery')) 
+
+    if (desc.includes('food') || desc.includes('restaurant') || desc.includes('grocery'))
       return { name: 'restaurant', color: '#FF6B6B' };
-    if (desc.includes('gas') || desc.includes('fuel') || desc.includes('electricity') || desc.includes('utility')) 
+    if (desc.includes('gas') || desc.includes('fuel') || desc.includes('electricity') || desc.includes('utility'))
       return { name: 'flash', color: '#F39C12' };
-    if (desc.includes('netflix') || desc.includes('subscription') || desc.includes('spotify')) 
+    if (desc.includes('netflix') || desc.includes('subscription') || desc.includes('spotify'))
       return { name: 'play-circle', color: '#9B59B6' };
-    if (desc.includes('transport') || desc.includes('uber') || desc.includes('taxi')) 
+    if (desc.includes('transport') || desc.includes('uber') || desc.includes('taxi'))
       return { name: 'car', color: '#3498DB' };
-    if (desc.includes('shopping') || desc.includes('clothes') || desc.includes('store')) 
+    if (desc.includes('shopping') || desc.includes('clothes') || desc.includes('store'))
       return { name: 'bag', color: '#E67E22' };
-    if (desc.includes('health') || desc.includes('medical') || desc.includes('doctor')) 
+    if (desc.includes('health') || desc.includes('medical') || desc.includes('doctor'))
       return { name: 'medical', color: '#E74C3C' };
-    if (desc.includes('entertainment') || desc.includes('movie') || desc.includes('game')) 
+    if (desc.includes('entertainment') || desc.includes('movie') || desc.includes('game'))
       return { name: 'game-controller', color: '#8E44AD' };
-    
+
     return { name: 'card', color: theme.colors.textSecondary };
   };
 
@@ -253,12 +253,12 @@ const TransactionsHistoryScreen = () => {
     const today = new Date();
     const diffTime = today.getTime() - date.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 0) return t('today');
     if (diffDays === 1) return t('yesterday');
     if (diffDays <= 7) return `${diffDays} ${t('days_ago')}`;
-    
-    return date.toLocaleDateString('en-US', {
+
+    return date.toLocaleDateString(language === 'ar' ? 'ar-SA' : language, {
       weekday: 'short',
       month: 'short',
       day: 'numeric',
@@ -312,9 +312,9 @@ const TransactionsHistoryScreen = () => {
 
   const renderTransactionItem = ({ item: transaction }: { item: HybridTransaction }) => {
     const icon = getTransactionIcon(transaction.type, transaction.description);
-    
+
     return (
-      <TouchableOpacity 
+      <TouchableOpacity
         style={[styles.transactionItem, { backgroundColor: theme.colors.surface }]}
         onPress={() => handleTransactionPress(transaction)}
         onLongPress={() => handleTransactionLongPress(transaction)}
@@ -346,21 +346,21 @@ const TransactionsHistoryScreen = () => {
         <View style={styles.transactionRight}>
           <Text style={[
             styles.transactionAmount,
-            { 
-              color: transaction.type === 'INCOME' 
-                ? theme.colors.success 
-                : transaction.type === 'TRANSFER' 
-                  ? theme.colors.primary 
-                  : '#FF3B30' 
+            {
+              color: transaction.type === 'INCOME'
+                ? theme.colors.success
+                : transaction.type === 'TRANSFER'
+                  ? theme.colors.primary
+                  : '#FF3B30'
             }
           ]}>
             {transaction.type === 'INCOME' ? '+' : transaction.type === 'TRANSFER' ? '↔' : ''}
             {formatCurrency(transaction.amount)}
           </Text>
           <Text style={[styles.transactionTime, { color: theme.colors.textSecondary }]}>
-            {new Date(transaction.date).toLocaleTimeString('en-US', { 
-              hour: '2-digit', 
-              minute: '2-digit' 
+            {new Date(transaction.date).toLocaleTimeString(language === 'ar' ? 'ar-SA' : language, {
+              hour: '2-digit',
+              minute: '2-digit'
             })}
           </Text>
         </View>
@@ -393,7 +393,7 @@ const TransactionsHistoryScreen = () => {
           )}
         </View>
       </View>
-      
+
       {/* Transactions */}
       <View style={styles.transactionsContainer}>
         {group.transactions.map((transaction, index) => (
@@ -409,8 +409,8 @@ const TransactionsHistoryScreen = () => {
   );
 
   const renderFilterChip = (
-    type: FilterState['type'], 
-    label: string, 
+    type: FilterState['type'],
+    label: string,
     icon?: string,
     count?: number
   ) => (
@@ -426,10 +426,10 @@ const TransactionsHistoryScreen = () => {
       onPress={() => setFilter(prev => ({ ...prev, type }))}
     >
       {icon && (
-        <Ionicons 
-          name={icon as any} 
-          size={16} 
-          color={filter.type === type ? 'white' : theme.colors.textSecondary} 
+        <Ionicons
+          name={icon as any}
+          size={16}
+          color={filter.type === type ? 'white' : theme.colors.textSecondary}
           style={styles.filterChipIcon}
         />
       )}
@@ -458,7 +458,7 @@ const TransactionsHistoryScreen = () => {
   );
 
   const renderDateRangeChip = (
-    range: FilterState['dateRange'], 
+    range: FilterState['dateRange'],
     label: string
   ) => (
     <TouchableOpacity
@@ -489,25 +489,25 @@ const TransactionsHistoryScreen = () => {
         colors={[`${theme.colors.primary}20`, `${theme.colors.primary}05`]}
         style={styles.emptyIconContainer}
       >
-        <MaterialCommunityIcons 
-          name="receipt-text-outline" 
-          size={48} 
-          color={theme.colors.primary} 
+        <MaterialCommunityIcons
+          name="receipt-text-outline"
+          size={48}
+          color={theme.colors.primary}
         />
       </LinearGradient>
       <Text style={[styles.emptyTitle, { color: theme.colors.text }]}>
         {filter.search ? t('no_search_results') : t('no_transactions')}
       </Text>
       <Text style={[styles.emptySubtitle, { color: theme.colors.textSecondary }]}>
-        {filter.search 
+        {filter.search
           ? t('try_different_search_terms')
-          : filter.type === 'all' 
+          : filter.type === 'all'
             ? t('start_tracking_expenses')
             : t('no_transactions_for_filter').replace('{filter}', t(filter.type))
         }
       </Text>
       {!filter.search && filter.type === 'all' && (
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[styles.emptyAction, { backgroundColor: theme.colors.primary }]}
           onPress={() => navigation.goBack()}
         >
@@ -520,18 +520,18 @@ const TransactionsHistoryScreen = () => {
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.headerBackground }]}>
       <StatusBar barStyle="light-content" backgroundColor={theme.colors.headerBackground} />
-      
+
       {/* Dark Header Section */}
       <View style={[styles.darkHeader, { backgroundColor: theme.colors.headerBackground, paddingTop: insets.top }]}>
         {/* Top Header Row */}
         <View style={styles.headerRow}>
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={() => navigation.goBack()}
             style={styles.backButton}
           >
             <Ionicons name="arrow-back" size={24} color={theme.colors.headerText} />
           </TouchableOpacity>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.userInfo}
             onPress={() => (navigation as any).navigate('UserProfile')}
             activeOpacity={0.7}
@@ -550,10 +550,10 @@ const TransactionsHistoryScreen = () => {
           </TouchableOpacity>
           <View style={styles.headerActions}>
             <TouchableOpacity onPress={toggleSearch} style={[styles.headerIconButton, { backgroundColor: theme.colors.headerSurface }]}>
-              <Ionicons 
-                name={searchVisible ? "close" : "search"} 
-                size={22} 
-                color={theme.colors.headerText} 
+              <Ionicons
+                name={searchVisible ? "close" : "search"}
+                size={22}
+                color={theme.colors.headerText}
               />
             </TouchableOpacity>
           </View>
@@ -571,7 +571,7 @@ const TransactionsHistoryScreen = () => {
 
         {/* Search Bar in Header */}
         <Animated.View style={[
-          styles.searchContainer, 
+          styles.searchContainer,
           { height: animatedValues.searchHeight }
         ]}>
           <View style={[styles.searchInputContainer, { backgroundColor: theme.colors.headerSurface }]}>
@@ -609,9 +609,9 @@ const TransactionsHistoryScreen = () => {
                 {formatCurrency(statistics.income)}
               </Text>
             </View>
-            
+
             <View style={[styles.statDivider, { backgroundColor: theme.colors.border }]} />
-            
+
             <View style={styles.statItem}>
               <View style={styles.statHeader}>
                 <Ionicons name="trending-down" size={16} color="#FF3B30" />
@@ -623,9 +623,9 @@ const TransactionsHistoryScreen = () => {
                 {formatCurrency(statistics.expense)}
               </Text>
             </View>
-            
+
             <View style={[styles.statDivider, { backgroundColor: theme.colors.border }]} />
-            
+
             <View style={styles.statItem}>
               <View style={styles.statHeader}>
                 <Ionicons name="analytics" size={16} color={theme.colors.primary} />
@@ -634,7 +634,7 @@ const TransactionsHistoryScreen = () => {
                 </Text>
               </View>
               <Text style={[
-                styles.statValue, 
+                styles.statValue,
                 { color: statistics.netIncome >= 0 ? theme.colors.success : '#FF3B30' }
               ]}>
                 {statistics.netIncome >= 0 ? '+' : ''}{formatCurrency(statistics.netIncome)}
@@ -645,23 +645,23 @@ const TransactionsHistoryScreen = () => {
 
         {/* Enhanced Filter Chips */}
         <View style={styles.filtersSection}>
-          <ScrollView 
-            horizontal 
+          <ScrollView
+            horizontal
             showsHorizontalScrollIndicator={false}
             style={styles.filterScrollView}
             contentContainerStyle={styles.filterScrollContent}
           >
             {renderFilterChip('all', t('all'), 'list', statistics.total)}
-            {renderFilterChip('income', t('income'), 'trending-up', 
+            {renderFilterChip('income', t('income'), 'trending-up',
               transactions.filter(t => t.type === 'INCOME').length)}
-            {renderFilterChip('expense', t('expenses'), 'trending-down', 
+            {renderFilterChip('expense', t('expenses'), 'trending-down',
               transactions.filter(t => t.type === 'EXPENSE').length)}
-            {renderFilterChip('transfer', t('transfers'), 'swap-horizontal', 
+            {renderFilterChip('transfer', t('transfers'), 'swap-horizontal',
               transactions.filter(t => t.type === 'TRANSFER').length)}
           </ScrollView>
 
-          <ScrollView 
-            horizontal 
+          <ScrollView
+            horizontal
             showsHorizontalScrollIndicator={false}
             style={[styles.filterScrollView, { marginTop: 12 }]}
             contentContainerStyle={styles.filterScrollContent}
@@ -794,7 +794,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
   },
-  
+
   // Search
   searchContainer: {
     overflow: 'hidden',

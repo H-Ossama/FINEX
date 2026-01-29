@@ -37,6 +37,7 @@ const translations = {
     'subscription_save': 'Save',
     'subscription_cancel_anytime': 'Cancel anytime',
     'subscription_managed_google': 'Managed in Google Play',
+    'subscription_renews_automatically': 'Renews automatically',
     'subscription_restore': 'Restore purchases',
     'subscription_restore_title': 'Restore purchases',
     'subscription_restore_message': 'No active subscription was found for this Google account. If you just purchased, wait a minute and try again.',
@@ -86,7 +87,7 @@ const translations = {
     'export': 'Export',
     'terms_of_use': 'Terms of Use',
     'privacy_policy': 'Privacy Policy',
-    
+
     // Home Screen
     'good_morning': 'Good Morning!',
     'total_balance': 'Total Balance',
@@ -116,8 +117,17 @@ const translations = {
     'pocket_money': 'Pocket Money',
     'bank_account': 'Bank Account',
     'savings': 'Savings',
+    'available_on_card': 'Available on card',
+    'swipe_hint_home': 'Swipe Right/left to change card',
+    'transfer_limit': 'Transfer Limit',
+    'spent': 'Spent',
+    'pay': 'Pay',
+    'operations': 'Operations',
+    'view_all': 'View All',
+    'quick': 'Quick',
+    'billed_yearly': 'billed yearly',
     'tip_message': 'You spent 20% less this week than last week. Keep it up!',
-    
+
     // Add Expense Modal
     'add_expense_title': 'Add Expense',
     'amount': 'Amount',
@@ -133,7 +143,7 @@ const translations = {
     'title_required': 'Title is required',
     'amount_required': 'Amount is required',
     'valid_amount': 'Please enter a valid amount',
-    
+
     // Categories
     'food': 'Food',
     'utilities': 'Utilities',
@@ -146,7 +156,7 @@ const translations = {
     'payments': 'Payments',
     'other': 'Other',
     'uncategorized': 'Uncategorized',
-    
+
     // Income Categories
     'salary': 'Salary',
     'freelance': 'Freelance',
@@ -155,13 +165,13 @@ const translations = {
     'rental': 'Rental',
     'bonus': 'Bonus',
     'refund': 'Refund',
-    
+
     // Add Income Modal
     'add_income_title': 'Add Income',
     'income_source': 'Income Source',
     'received_in': 'Received In',
     'income_description': 'What did you receive money for?',
-    
+
     // Transfer Modal
     'transfer_title': 'Transfer Money',
     'from_wallet': 'From Wallet',
@@ -174,26 +184,41 @@ const translations = {
     'same_wallet_error': 'Source and destination wallets cannot be the same',
     'insufficient_funds': 'Insufficient funds in source wallet',
     'transfer_required_fields': 'Please fill in all required fields',
-    
+
     // Borrowed Money
-    'add_borrowed_money_title': 'Add Borrowed Money',
+    'add_borrowed_money_title': 'Add Borrowed/Lent Money',
     'person_name': 'Person Name',
+    'i_borrowed': 'I Borrowed',
+    'i_lent': 'I Lent',
+    'borrowed_from': 'Borrowed from',
+    'lent_to': 'Lent to',
+    'transaction_type': 'Transaction Type',
+    'borrowed_label': 'Borrowed',
+    'lent_label': 'Lent',
+    'amount_lent': 'Amount Lent',
+    'borrowed_date_label': 'Borrowed Date',
+    'lent_date_label': 'Lent Date',
+    'total_lent_pending': 'Total Owed to You',
+    'total_borrowed_pending': 'Total You Owe',
     'reason': 'Reason',
     'due_date': 'Due Date',
     'add_reminder': 'Add Reminder',
     'borrowed_money_details': 'Borrowed Money Details',
-    'mark_as_paid': 'Mark as Paid',
+    'mark_as_received': 'Mark as Received',
+    'mark_paid_confirmation': 'Are you sure you want to mark the payment to {name} as completed?',
+    'mark_received_confirmation': 'Are you sure you want to mark the payment from {name} as received?',
     'edit': 'Edit',
     'delete': 'Delete',
     'confirm_delete': 'Confirm Delete',
     'delete_confirmation': 'Are you sure you want to delete this borrowed money record?',
+    'delete_record_confirmation': 'Are you sure you want to delete the record for {name}?',
     'cancel': 'Cancel',
     'confirm': 'Confirm',
     'person_name_required': 'Person name is required',
     'reason_required': 'Reason is required',
     'name_placeholder': 'Enter person\'s name',
     'reason_placeholder': 'What was the money for?',
-    
+
     // Additional fields
     'person_details': 'Person Details',
     'loan_details': 'Loan Details',
@@ -206,22 +231,20 @@ const translations = {
     'email_placeholder': 'Enter email address',
     'amount_placeholder': 'Enter amount',
     'notes_placeholder': 'Additional notes or comments',
-    
+
     // Additional status and field labels
     'pending': 'PENDING',
     'amount_borrowed': 'Amount Borrowed',
     'borrowed_date': 'Borrowed Date',
     'save_changes': 'Save Changes',
     'delete_record': 'Delete Record',
-    'mark_paid_confirmation': 'Are you sure you want to mark this debt from {name} as paid?',
-    'delete_record_confirmation': 'Are you sure you want to delete this record for {name}?',
-    
+
     // Transactions History Screen
     'loading_transactions': 'Loading transactions...',
     'loading_more': 'Loading more...',
     'no_filtered_transactions': 'No {filter} transactions found',
     'first_transaction': 'Start by adding your first transaction',
-    
+
     // Borrowed Money History Screen
     'total_pending': 'Total Pending',
     'total_paid': 'Total Paid',
@@ -231,15 +254,23 @@ const translations = {
     'loading_borrowed_money': 'Loading borrowed money records...',
     'add_first_borrowed_record': 'Add your first borrowed money record',
     'no_filtered_records': 'No {filter} records found',
-    
+
     // AddIncomeScreen
     'summary': 'Summary',
     'wallet_label': 'Wallet',
     'income_note_placeholder': 'Add a note about this income...',
+    'lent_money_to': 'Lent money to {name}',
+    'borrowed_money_from': 'Borrowed money from {name}',
+    'lent_for': 'Lent for: {reason}',
+    'borrowed_for': 'Borrowed for: {reason}',
+    'recovered_loan_from': 'Recovered loan from {name}',
+    'repaid_debt_to': 'Repaid debt to {name}',
+    'loan_recovery': 'Loan recovery',
+    'debt_repayment': 'Debt repayment',
     'success': 'Success!',
     'ok': 'OK',
     'income_added_success': 'Income of {amount} has been added to your {wallet}.',
-    
+
     // NotificationCenterScreen
     'notifications_title': 'Notifications',
     'notifications': 'Notifications',
@@ -268,7 +299,7 @@ const translations = {
     'delete_notification_confirm': 'Are you sure you want to delete this notification?',
     'clear_all_notifications': 'Clear All Notifications',
     'clear_all_confirm': 'Are you sure you want to clear all notifications? This action cannot be undone.',
-    
+
     // Notification Categories and Frequencies
     'transactions': 'Transactions',
     'budgets': 'Budgets',
@@ -278,7 +309,7 @@ const translations = {
     'daily_digest': 'Daily Digest',
     'weekly_report': 'Weekly Report',
     'monthly_report': 'Monthly Report',
-    
+
     // Transactions History
     'transactions_history': 'Transactions History',
     'all': 'All',
@@ -309,7 +340,7 @@ const translations = {
     'type': 'Type',
     'period': 'Period',
     'failed_to_load_transactions': 'Failed to load transactions',
-    
+
     // Transaction Details Modal
     'transaction_details': 'Transaction Details',
     'transaction_details_info': 'Details',
@@ -324,7 +355,7 @@ const translations = {
     'delete_transaction_confirmation': 'Are you sure you want to delete this transaction? This action cannot be undone.',
     'transaction_notes': 'Notes',
     'failed_to_delete_transaction': 'Failed to delete transaction',
-    
+
     // Borrowed Money History  
     'borrowed_money_history': 'Borrowed Money History',
     'active': 'Active',
@@ -332,7 +363,7 @@ const translations = {
     'search_placeholder': 'Search by person name...',
     'no_borrowed_money_history': 'No borrowed money records',
     'no_borrowed_money_history_subtitle': 'Records of money you\'ve lent will appear here',
-    
+
     // Insights Screen
     'insights_title': 'Insights',
     'week': 'Week',
@@ -367,7 +398,7 @@ const translations = {
     'start_categorizing_expenses': 'Start categorizing expenses',
     'review_past_uncategorized_spending': 'Review past uncategorized spending',
     'set_up_a_basic_tracking_system': 'Set up a basic tracking system',
-    
+
     // Common recommendation messages
     'consider_reducing_utility_expenses': 'Consider reducing utility expenses',
     'utility_spending_tip': 'Your utility spending is high. Try switching to energy-efficient appliances.',
@@ -382,7 +413,7 @@ const translations = {
     'spending_higher_this_month': 'Your spending is {percent}% higher than last month.',
     'spending_reduced_this_month': 'You\'ve reduced spending by {percent}% compared to last month.',
     'utility_spending_percentage_tip': 'Your utility spending is {percent}% of total expenses. Try switching to energy-efficient appliances.',
-    
+
     // More Screen
     'more_screen_title': 'More',
     'more_screen_financial_tools': 'Financial Tools',
@@ -471,7 +502,7 @@ const translations = {
     'profile_screen_deleting_account': 'Deleting your account…',
     'profile_screen_sign_out_confirmation': 'Are you sure you want to sign out of your account?',
     'profile_screen_unexpected_error': 'An unexpected error occurred. Please try again.',
-    
+
     // Settings Screen
     'settings_screen_title': 'Settings & Actions',
     'settings_screen_max_security': 'Maximum Security Active',
@@ -505,7 +536,7 @@ const translations = {
     'settings_screen_terms_service': 'Terms of Service',
     'settings_screen_select_language': 'Select Language',
     'settings_screen_select_currency': 'Select Currency',
-    'settings_screen_app_version': 'FinTracker v2.7.0',
+    'settings_screen_app_version': 'FinTracker v3.0.0',
     'settings_screen_built_with_love': 'Built with ❤️ for your financial freedom',
     'development_tools_title': 'Development Tools',
 
@@ -534,7 +565,7 @@ const translations = {
     'wallet_screen_error_delete': 'Failed to delete wallet. Please try again.',
     'wallet_screen_no_wallets_add_money': 'Please create a wallet first before adding money.',
     'wallet_screen_select_wallet_error': 'Please select a wallet to add money to.',
-    
+
     // Add Money Modal
     'add_money_title': 'Add Money',
     'add_money_to_wallet': 'Add Money to {wallet}',
@@ -549,12 +580,12 @@ const translations = {
     'add_money_wallet_required': 'Please select a wallet',
     'add_money_adding_to': 'Adding money to ',
     'add_money_error': 'Failed to add money. Please try again.',
-    
+
     // Add Wallet Modal  
     'add_wallet_title': 'Add New Wallet',
     'add_wallet_preview': 'Preview',
     'add_wallet_name': 'Wallet Name',
-    'add_wallet_type': 'Wallet Type', 
+    'add_wallet_type': 'Wallet Type',
     'add_wallet_color': 'Choose Color',
     'add_wallet_initial_balance': 'Initial Balance',
     'add_wallet_button': 'Add Wallet',
@@ -567,7 +598,7 @@ const translations = {
     'add_wallet_balance_invalid': 'Please enter a valid amount',
     'add_wallet_balance_negative': 'Balance cannot be negative',
     'add_wallet_default_name': 'Wallet Name',
-    
+
     // Wallet Types
     'wallet_type_bank': 'Bank Account',
     'wallet_type_bank_desc': 'Checking or savings account',
@@ -1103,7 +1134,74 @@ const translations = {
     'insights': 'Einblicke',
     'wallet': 'Geldbörse',
     'more': 'Mehr',
-    
+
+    // Subscription
+    'subscription_title': 'Abonnement',
+    'subscription_pro': 'PRO',
+    'subscription_free': 'KOSTENLOS',
+    'subscription_you_are_on_pro': 'Sie sind Pro-Nutzer',
+    'subscription_you_are_on_free': 'Sie sind Free-Nutzer',
+    'subscription_upgrade_to_pro': 'Auf Pro upgraden',
+    'subscription_unlock_potential': 'Schöpfen Sie Ihr volles Potenzial aus',
+    'subscription_pro_description': 'Erhalten Sie unbegrenzten Zugang zu allen Premium-Funktionen',
+    'subscription_best_value': 'Bestes Preis-Leistungs-Verhältnis',
+    'subscription_yearly': 'Jährlich',
+    'subscription_monthly': 'Monatlich',
+    'subscription_billed_monthly': 'Monatlich abgerechnet',
+    'subscription_save': 'Sparen',
+    'subscription_cancel_anytime': 'Jederzeit kündbar',
+    'subscription_managed_google': 'Verwaltet in Google Play',
+    'subscription_renews_automatically': 'Wird automatisch erneuert',
+    'subscription_restore': 'Käufe wiederherstellen',
+    'subscription_restore_title': 'Käufe wiederherstellen',
+    'subscription_restore_message': 'Für dieses Google-Konto wurde kein aktives Abonnement gefunden. Wenn Sie gerade erst gekauft haben, warten Sie eine Minute und versuchen Sie es erneut.',
+    'subscription_upgrade_title': 'Pro-Abonnement starten',
+    'subscription_upgrade_button': 'Weiter',
+    'subscription_upgrade_button.monthly': 'Weiter',
+    'subscription_upgrade_button.yearly': 'Weiter',
+    'subscription_upgrade_confirm': 'Pro • {price}\n\nJederzeit in Google Play kündbar. Verlängert sich automatisch, sofern nicht gekündigt.\n\nHinweis: Käufe werden in dieser Version simuliert.',
+    'subscription_welcome_pro': 'Willkommen bei Pro',
+    'subscription_welcome_pro_message': 'Pro-Funktionen sind jetzt auf diesem Gerät freigeschaltet.',
+    'subscription_demo_notice': 'Entwicklungsversion: Abonnements werden simuliert.',
+    'subscription_details': 'Abonnementdetails',
+    'subscription_plan': 'Plan',
+    'subscription_status': 'Status',
+    'subscription_active': 'Aktiv',
+    'subscription_manage_google': 'Abonnement in Google Play verwalten',
+    'subscription_your_features': 'Ihre Pro-Funktionen',
+    'subscription_custom_categories': 'Benutzerdefinierte Kategorien erstellen',
+    'subscription_priority_support': 'Priorisierter Support',
+    'subscription_no_ads': 'Werbefreie Erfahrung',
+    'subscription_plan_free': 'Kostenlos',
+    'subscription_plan_free_subtitle': 'Grundlagen für den Start',
+    'subscription_plan_pro': 'Pro',
+    'subscription_plan_pro_subtitle': 'Alles freischalten',
+    'subscription_price_free': '0 € / Monat',
+    'subscription_price_pro': '4,99 € / Monat',
+    'subscription_free_wallets': 'Bis zu 2 Geldbörsen',
+    'subscription_free_transactions': 'Bis zu 50 Transaktionen / Monat',
+    'subscription_free_goals': '1 Sparziel',
+    'subscription_free_budgets': '1 Budget',
+    'subscription_pro_unlimited': 'Unbegrenzte Geldbörsen & Transaktionen',
+    'subscription_pro_export': 'Daten exportieren (PDF/CSV/Excel)',
+    'subscription_pro_backup': 'Cloud-Backup & Synchronisierung',
+    'subscription_pro_insights': 'Erweiterte Einblicke & Analysen',
+    'subscription_current_plan': 'Aktueller Plan',
+    'subscription_select': 'Auswählen',
+    'subscription_disclaimer': 'Demo-Modus: noch keine echte Zahlungsabwicklung.',
+    'subscription_change_plan': 'Plan ändern',
+    'subscription_change_to_pro_confirm': 'Zu Pro wechseln? (Demo-Modus: keine echte Abrechnung)',
+    'subscription_change_to_free_confirm': 'Zu Kostenlos wechseln? (Ihre Pro-Funktionen werden deaktiviert)',
+    'subscription_change_failed': 'Planänderung fehlgeschlagen.',
+    'subscription_all_features_unlocked': 'Alle Funktionen freigeschaltet',
+    'subscription_upgrade_hint': 'Upgrade, um alles freizuschalten',
+    'subscription_switch_plan_subtitle': 'Pläne vergleichen und Abonnement ändern',
+    'wallets': 'Geldbörsen',
+    'backup': 'Sicherung',
+    'export': 'Exportieren',
+    'terms_of_use': 'Nutzungsbedingungen',
+    'privacy_policy': 'Datenschutzrichtlinie',
+
     // Home Screen
     'good_morning': 'Guten Morgen!',
     'total_balance': 'Gesamtguthaben',
@@ -1133,8 +1231,17 @@ const translations = {
     'pocket_money': 'Taschengeld',
     'bank_account': 'Bankkonto',
     'savings': 'Ersparnisse',
+    'available_on_card': 'Auf der Karte verfügbar',
+    'swipe_hint_home': 'Nach rechts/links wischen, um die Karte zu wechseln',
+    'transfer_limit': 'Überweisungslimit',
+    'spent': 'Ausgegeben',
+    'pay': 'Bezahlen',
+    'operations': 'Operationen',
+    'view_all': 'Alle anzeigen',
+    'quick': 'Schnell',
+    'billed_yearly': 'jährlich abgerechnet',
     'tip_message': 'Sie haben diese Woche 20% weniger ausgegeben als letzte Woche. Weiter so!',
-    
+
     // Add Expense Modal
     'add_expense_title': 'Ausgabe hinzufügen',
     'amount': 'Betrag',
@@ -1150,7 +1257,7 @@ const translations = {
     'title_required': 'Titel ist erforderlich',
     'amount_required': 'Betrag ist erforderlich',
     'valid_amount': 'Bitte geben Sie einen gültigen Betrag ein',
-    
+
     // Categories
     'food': 'Essen',
     'utilities': 'Nebenkosten',
@@ -1163,7 +1270,7 @@ const translations = {
     'payments': 'Zahlungen',
     'other': 'Andere',
     'uncategorized': 'Unkategorisiert',
-    
+
     // Income Categories
     'salary': 'Gehalt',
     'freelance': 'Freiberuflich',
@@ -1172,13 +1279,13 @@ const translations = {
     'rental': 'Miete',
     'bonus': 'Bonus',
     'refund': 'Rückerstattung',
-    
+
     // Add Income Modal
     'add_income_title': 'Einkommen hinzufügen',
     'income_source': 'Einkommensquelle',
     'received_in': 'Erhalten in',
     'income_description': 'Wofür haben Sie Geld erhalten?',
-    
+
     // Transfer Modal
     'transfer_title': 'Geld überweisen',
     'from_wallet': 'Von Geldbörse',
@@ -1191,26 +1298,41 @@ const translations = {
     'same_wallet_error': 'Quell- und Zielgeldbörse können nicht identisch sein',
     'insufficient_funds': 'Unzureichende Mittel in der Quellgeldbörse',
     'transfer_required_fields': 'Bitte füllen Sie alle erforderlichen Felder aus',
-    
+
     // Borrowed Money
-    'add_borrowed_money_title': 'Geliehenes Geld hinzufügen',
-    'person_name': 'Personenname',
+    'add_borrowed_money_title': 'Geld leihen/verleihen',
+    'person_name': 'Name der Person',
+    'i_borrowed': 'Ich habe mir geliehen',
+    'i_lent': 'Ich habe verliehen',
+    'borrowed_from': 'Geliehen von',
+    'lent_to': 'Verliehen an',
+    'transaction_type': 'Transaktionstyp',
+    'borrowed_label': 'Geliehen',
+    'lent_label': 'Verliehen',
+    'amount_lent': 'Geliehener Betrag',
+    'borrowed_date_label': 'Leihdatum',
+    'lent_date_label': 'Verleihdatum',
+    'total_lent_pending': 'Gesamtbetrag, den man Ihnen schuldet',
+    'total_borrowed_pending': 'Gesamtbetrag, den Sie schulden',
     'reason': 'Grund',
     'due_date': 'Fälligkeitsdatum',
     'add_reminder': 'Erinnerung hinzufügen',
     'borrowed_money_details': 'Details des geliehenen Geldes',
-    'mark_as_paid': 'Als bezahlt markieren',
+    'mark_as_received': 'Als erhalten markieren',
+    'mark_paid_confirmation': 'Sind Sie sicher, dass Sie die Zahlung an {name} als abgeschlossen markieren möchten?',
+    'mark_received_confirmation': 'Sind Sie sicher, dass Sie die Zahlung von {name} als erhalten markieren möchten?',
     'edit': 'Bearbeiten',
     'delete': 'Löschen',
     'confirm_delete': 'Löschen bestätigen',
     'delete_confirmation': 'Sind Sie sicher, dass Sie diesen Datensatz für geliehenes Geld löschen möchten?',
+    'delete_record_confirmation': 'Sind Sie sicher, dass Sie den Datensatz für {name} löschen möchten?',
     'cancel': 'Abbrechen',
     'confirm': 'Bestätigen',
     'person_name_required': 'Personenname ist erforderlich',
     'reason_required': 'Grund ist erforderlich',
     'name_placeholder': 'Namen der Person eingeben',
     'reason_placeholder': 'Wofür war das Geld?',
-    
+
     // Additional fields
     'person_details': 'Personendetails',
     'loan_details': 'Darlehensdetails',
@@ -1223,22 +1345,20 @@ const translations = {
     'email_placeholder': 'E-Mail-Adresse eingeben',
     'amount_placeholder': 'Betrag eingeben',
     'notes_placeholder': 'Zusätzliche Notizen oder Kommentare',
-    
+
     // Additional status and field labels
     'pending': 'AUSSTEHEND',
     'amount_borrowed': 'Geliehener Betrag',
     'borrowed_date': 'Geliehen am',
     'save_changes': 'Änderungen speichern',
     'delete_record': 'Datensatz löschen',
-    'mark_paid_confirmation': 'Sind Sie sicher, dass Sie diese Schuld von {name} als bezahlt markieren möchten?',
-    'delete_record_confirmation': 'Sind Sie sicher, dass Sie diesen Datensatz für {name} löschen möchten?',
-    
+
     // Transactions History Screen
     'loading_transactions': 'Transaktionen werden geladen...',
     'loading_more': 'Mehr laden...',
     'no_filtered_transactions': 'Keine {filter} Transaktionen gefunden',
     'first_transaction': 'Beginnen Sie mit Ihrer ersten Transaktion',
-    
+
     // Borrowed Money History Screen
     'total_pending': 'Gesamt ausstehend',
     'total_paid': 'Gesamt bezahlt',
@@ -1248,15 +1368,23 @@ const translations = {
     'loading_borrowed_money': 'Geliehenes Geld Datensätze werden geladen...',
     'add_first_borrowed_record': 'Fügen Sie Ihren ersten geliehenen Geld Datensatz hinzu',
     'no_filtered_records': 'Keine {filter} Datensätze gefunden',
-    
+
     // AddIncomeScreen
     'summary': 'Zusammenfassung',
     'wallet_label': 'Geldbörse',
-    'income_note_placeholder': 'Fügen Sie eine Notiz zu diesem Einkommen hinzu...',
-    'success': 'Erfolgreich!',
+    'income_note_placeholder': 'Notiz zu diesem Einkommen hinzufügen...',
+    'lent_money_to': 'Geld verliehen an {name}',
+    'borrowed_money_from': 'Geld geliehen von {name}',
+    'lent_for': 'Geliehen für: {reason}',
+    'borrowed_for': 'Geliehen für: {reason}',
+    'recovered_loan_from': 'Darlehen von {name} zurückerhalten',
+    'repaid_debt_to': 'Schulden an {name} zurückgezahlt',
+    'loan_recovery': 'Darlehensrückzahlung',
+    'debt_repayment': 'Schuldenrückzahlung',
+    'success': 'Erfolg!',
     'ok': 'OK',
     'income_added_success': 'Einkommen von {amount} wurde zu Ihrer {wallet} hinzugefügt.',
-    
+
     // NotificationCenterScreen
     'notifications_title': 'Benachrichtigungen',
     'notifications': 'Benachrichtigungen',
@@ -1285,7 +1413,7 @@ const translations = {
     'delete_notification_confirm': 'Sind Sie sicher, dass Sie diese Benachrichtigung löschen möchten?',
     'clear_all_notifications': 'Alle Benachrichtigungen löschen',
     'clear_all_confirm': 'Sind Sie sicher, dass Sie alle Benachrichtigungen löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.',
-    
+
     // Notification Categories and Frequencies
     'transactions': 'Transaktionen',
     'budgets': 'Budgets',
@@ -1295,7 +1423,7 @@ const translations = {
     'daily_digest': 'Tägliche Zusammenfassung',
     'weekly_report': 'Wöchentlicher Bericht',
     'monthly_report': 'Monatlicher Bericht',
-    
+
     // Transactions History
     'transactions_history': 'Transaktionsverlauf',
     'all': 'Alle',
@@ -1322,7 +1450,7 @@ const translations = {
     'type': 'Typ',
     'period': 'Zeitraum',
     'failed_to_load_transactions': 'Transaktionen konnten nicht geladen werden',
-    
+
     // Borrowed Money History  
     'borrowed_money_history': 'Verlauf des geliehenen Geldes',
     'active': 'Aktiv',
@@ -1330,7 +1458,7 @@ const translations = {
     'search_placeholder': 'Nach Personenname suchen...',
     'no_borrowed_money_history': 'Keine Aufzeichnungen über geliehenes Geld',
     'no_borrowed_money_history_subtitle': 'Aufzeichnungen über Geld, das Sie verliehen haben, werden hier angezeigt',
-    
+
     // Insights Screen
     'insights_title': 'Einblicke',
     'week': 'Woche',
@@ -1365,7 +1493,7 @@ const translations = {
     'start_categorizing_expenses': 'Ausgaben kategorisieren',
     'review_past_uncategorized_spending': 'Vergangene nicht kategorisierte Ausgaben prüfen',
     'set_up_a_basic_tracking_system': 'Ein einfaches Trackingsystem einrichten',
-    
+
     // Common recommendation messages
     'consider_reducing_utility_expenses': 'Erwägen Sie die Reduzierung der Nebenkosten',
     'utility_spending_tip': 'Ihre Nebenkostenausgaben sind hoch. Versuchen Sie energieeffiziente Geräte.',
@@ -1380,7 +1508,7 @@ const translations = {
     'spending_higher_this_month': 'Ihre Ausgaben sind {percent}% höher als im letzten Monat.',
     'spending_reduced_this_month': 'Sie haben die Ausgaben um {percent}% im Vergleich zum letzten Monat reduziert.',
     'utility_spending_percentage_tip': 'Ihre Nebenkostenausgaben betragen {percent}% der Gesamtausgaben. Versuchen Sie energieeffiziente Geräte.',
-    
+
     // More Screen
     'more_screen_title': 'Mehr',
     'more_screen_financial_tools': 'Finanztools',
@@ -1469,7 +1597,7 @@ const translations = {
     'profile_screen_deleting_account': 'Konto wird gelöscht…',
     'profile_screen_sign_out_confirmation': 'Sind Sie sicher, dass Sie sich von Ihrem Konto abmelden möchten?',
     'profile_screen_unexpected_error': 'Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut.',
-    
+
     // Settings Screen
     'settings_screen_title': 'Einstellungen & Aktionen',
     'settings_screen_max_security': 'Maximale Sicherheit aktiv',
@@ -1503,7 +1631,7 @@ const translations = {
     'settings_screen_terms_service': 'Nutzungsbedingungen',
     'settings_screen_select_language': 'Sprache auswählen',
     'settings_screen_select_currency': 'Währung auswählen',
-    'settings_screen_app_version': 'FinTracker v2.7.0',
+    'settings_screen_app_version': 'FinTracker v3.0.0',
     'settings_screen_built_with_love': 'Mit ❤️ für Ihre finanzielle Freiheit entwickelt',
     'development_tools_title': 'Entwicklungstools',
 
@@ -1532,7 +1660,7 @@ const translations = {
     'wallet_screen_error_delete': 'Fehler beim Löschen der Geldbörse. Bitte versuchen Sie es erneut.',
     'wallet_screen_no_wallets_add_money': 'Bitte erstellen Sie zuerst eine Geldbörse, bevor Sie Geld hinzufügen.',
     'wallet_screen_select_wallet_error': 'Bitte wählen Sie eine Geldbörse aus, um Geld hinzuzufügen.',
-    
+
     // Add Money Modal
     'add_money_title': 'Geld hinzufügen',
     'add_money_to_wallet': 'Geld zu {wallet} hinzufügen',
@@ -1547,12 +1675,12 @@ const translations = {
     'add_money_wallet_required': 'Bitte wählen Sie eine Geldbörse aus',
     'add_money_adding_to': 'Geld hinzufügen zu ',
     'add_money_error': 'Fehler beim Hinzufügen von Geld. Bitte versuchen Sie es erneut.',
-    
+
     // Add Wallet Modal  
     'add_wallet_title': 'Neue Geldbörse hinzufügen',
     'add_wallet_preview': 'Vorschau',
     'add_wallet_name': 'Geldbörsenname',
-    'add_wallet_type': 'Geldbörsentyp', 
+    'add_wallet_type': 'Geldbörsentyp',
     'add_wallet_color': 'Farbe wählen',
     'add_wallet_initial_balance': 'Anfangsguthaben',
     'add_wallet_button': 'Geldbörse hinzufügen',
@@ -1565,7 +1693,7 @@ const translations = {
     'add_wallet_balance_invalid': 'Bitte geben Sie einen gültigen Betrag ein',
     'add_wallet_balance_negative': 'Guthaben kann nicht negativ sein',
     'add_wallet_default_name': 'Geldbörsenname',
-    
+
     // Wallet Types
     'wallet_type_bank': 'Bankkonto',
     'wallet_type_bank_desc': 'Giro- oder Sparkonto',
@@ -2107,6 +2235,7 @@ const translations = {
     'subscription_save': 'Économisez',
     'subscription_cancel_anytime': 'Annulez à tout moment',
     'subscription_managed_google': 'Géré dans Google Play',
+    'subscription_renews_automatically': 'Renouvellement automatique',
     'subscription_restore': 'Restaurer les achats',
     'subscription_restore_title': 'Restaurer les achats',
     'subscription_restore_message': 'Aucun abonnement actif n’a été trouvé pour ce compte Google. Si vous venez d’acheter, attendez une minute puis réessayez.',
@@ -2156,7 +2285,7 @@ const translations = {
     'export': 'Exporter',
     'terms_of_use': 'Conditions d’utilisation',
     'privacy_policy': 'Politique de confidentialité',
-    
+
     // Home Screen
     'good_morning': 'Bonjour !',
     'total_balance': 'Solde total',
@@ -2186,8 +2315,17 @@ const translations = {
     'pocket_money': 'Argent de poche',
     'bank_account': 'Compte bancaire',
     'savings': 'Épargne',
+    'available_on_card': 'Disponible sur la carte',
+    'swipe_hint_home': 'Balayez vers la droite/gauche pour changer de carte',
+    'transfer_limit': 'Limite de transfert',
+    'spent': 'Dépensé',
+    'pay': 'Payer',
+    'operations': 'Opérations',
+    'view_all': 'Voir tout',
+    'quick': 'Rapide',
+    'billed_yearly': 'facturé annuellement',
     'tip_message': 'Vous avez dépensé 20% de moins cette semaine que la semaine dernière. Continuez comme ça !',
-    
+
     // Add Expense Modal
     'add_expense_title': 'Ajouter une dépense',
     'amount': 'Montant',
@@ -2203,7 +2341,7 @@ const translations = {
     'title_required': 'Le titre est requis',
     'amount_required': 'Le montant est requis',
     'valid_amount': 'Veuillez entrer un montant valide',
-    
+
     // Categories
     'food': 'Nourriture',
     'utilities': 'Utilitaires',
@@ -2216,7 +2354,7 @@ const translations = {
     'payments': 'Paiements',
     'other': 'Autre',
     'uncategorized': 'Non catégorisé',
-    
+
     // Income Categories
     'salary': 'Salaire',
     'freelance': 'Freelance',
@@ -2225,13 +2363,13 @@ const translations = {
     'rental': 'Location',
     'bonus': 'Bonus',
     'refund': 'Remboursement',
-    
+
     // Add Income Modal
     'add_income_title': 'Ajouter un revenu',
     'income_source': 'Source de revenu',
     'received_in': 'Reçu sur',
     'income_description': 'Pourquoi avez-vous reçu de l\'argent ?',
-    
+
     // Transfer Modal
     'transfer_title': 'Transférer de l\'argent',
     'from_wallet': 'Du portefeuille',
@@ -2244,26 +2382,41 @@ const translations = {
     'same_wallet_error': 'Les portefeuilles source et destination ne peuvent pas être identiques',
     'insufficient_funds': 'Fonds insuffisants dans le portefeuille source',
     'transfer_required_fields': 'Veuillez remplir tous les champs requis',
-    
+
     // Borrowed Money
-    'add_borrowed_money_title': 'Ajouter argent emprunté',
+    'add_borrowed_money_title': 'Ajouter Emprunt/Prêt',
     'person_name': 'Nom de la personne',
+    'i_borrowed': 'J\'ai emprunté',
+    'i_lent': 'J\'ai prêté',
+    'borrowed_from': 'Emprunté à',
+    'lent_to': 'Prêté à',
+    'transaction_type': 'Type de transaction',
+    'borrowed_label': 'Emprunté',
+    'lent_label': 'Prêté',
+    'amount_lent': 'Montant prêté',
+    'borrowed_date_label': 'Date d\'emprunt',
+    'lent_date_label': 'Date de prêt',
+    'total_lent_pending': 'Total qu\'on vous doit',
+    'total_borrowed_pending': 'Total que vous devez',
     'reason': 'Raison',
     'due_date': 'Date d\'échéance',
     'add_reminder': 'Ajouter un rappel',
     'borrowed_money_details': 'Détails de l\'argent emprunté',
-    'mark_as_paid': 'Marquer comme payé',
+    'mark_as_received': 'Marquer comme reçu',
+    'mark_paid_confirmation': 'Êtes-vous sûr de vouloir marquer le paiement à {name} comme terminé ?',
+    'mark_received_confirmation': 'Êtes-vous sûr de vouloir marquer le paiement de {name} comme reçu ?',
     'edit': 'Modifier',
     'delete': 'Supprimer',
     'confirm_delete': 'Confirmer la suppression',
-    'delete_confirmation': 'Êtes-vous sûr de vouloir supprimer cet enregistrement ?',
+    'delete_confirmation': 'Êtes-vous sûr de vouloir supprimer ce dossier d\'argent emprunté ?',
+    'delete_record_confirmation': 'Êtes-vous sûr de vouloir supprimer le dossier pour {name} ?',
     'cancel': 'Annuler',
     'confirm': 'Confirmer',
     'person_name_required': 'Le nom de la personne est requis',
     'reason_required': 'La raison est requise',
     'name_placeholder': 'Entrer le nom de la personne',
     'reason_placeholder': 'Pourquoi cet argent ?',
-    
+
     // Additional fields
     'person_details': 'Détails de la personne',
     'loan_details': 'Détails du prêt',
@@ -2276,22 +2429,20 @@ const translations = {
     'email_placeholder': 'Entrer l\'adresse email',
     'amount_placeholder': 'Entrer le montant',
     'notes_placeholder': 'Notes ou commentaires supplémentaires',
-    
+
     // Additional status and field labels
     'pending': 'EN ATTENTE',
     'amount_borrowed': 'Montant emprunté',
     'borrowed_date': 'Date d\'emprunt',
     'save_changes': 'Enregistrer les modifications',
     'delete_record': 'Supprimer l\'enregistrement',
-    'mark_paid_confirmation': 'Êtes-vous sûr de vouloir marquer cette dette de {name} comme payée ?',
-    'delete_record_confirmation': 'Êtes-vous sûr de vouloir supprimer cet enregistrement pour {name} ?',
-    
+
     // Transactions History Screen
     'loading_transactions': 'Chargement des transactions...',
     'loading_more': 'Chargement plus...',
     'no_filtered_transactions': 'Aucune transaction {filter} trouvée',
     'first_transaction': 'Commencez par ajouter votre première transaction',
-    
+
     // Borrowed Money History Screen
     'total_pending': 'Total en attente',
     'total_paid': 'Total payé',
@@ -2300,15 +2451,23 @@ const translations = {
     'loading_borrowed_money': 'Chargement des enregistrements...',
     'add_first_borrowed_record': 'Ajoutez votre premier enregistrement d\'argent emprunté',
     'no_filtered_records': 'Aucun enregistrement {filter} trouvé',
-    
+
     // AddIncomeScreen
     'summary': 'Résumé',
     'wallet_label': 'Portefeuille',
     'income_note_placeholder': 'Ajouter une note sur ce revenu...',
+    'lent_money_to': 'Argent prêté à {name}',
+    'borrowed_money_from': 'Argent emprunté à {name}',
+    'lent_for': 'Prêté pour : {reason}',
+    'borrowed_for': 'Emprunté pour : {reason}',
+    'recovered_loan_from': 'Prêt récupéré de {name}',
+    'repaid_debt_to': 'Dette remboursée à {name}',
+    'loan_recovery': 'Récupération de prêt',
+    'debt_repayment': 'Remboursement de dette',
     'success': 'Succès !',
     'ok': 'OK',
     'income_added_success': 'Un revenu de {amount} a été ajouté à votre {wallet}.',
-    
+
     // NotificationCenterScreen
     'notifications_title': 'Notifications',
     'notifications': 'Notifications',
@@ -2337,7 +2496,7 @@ const translations = {
     'delete_notification_confirm': 'Êtes-vous sûr de vouloir supprimer cette notification ?',
     'clear_all_notifications': 'Effacer toutes les notifications',
     'clear_all_confirm': 'Êtes-vous sûr de vouloir effacer toutes les notifications ? Cette action est irréversible.',
-    
+
     // Notification Categories and Frequencies
     'transactions': 'Transactions',
     'budgets': 'Budgets',
@@ -2347,7 +2506,7 @@ const translations = {
     'daily_digest': 'Résumé quotidien',
     'weekly_report': 'Rapport hebdomadaire',
     'monthly_report': 'Rapport mensuel',
-    
+
     // Transactions History
     'transactions_history': 'Historique des transactions',
     'all': 'Tout',
@@ -2374,7 +2533,7 @@ const translations = {
     'type': 'Type',
     'period': 'Période',
     'failed_to_load_transactions': 'Échec du chargement des transactions',
-    
+
     // Borrowed Money History  
     'borrowed_money_history': 'Historique de l\'argent emprunté',
     'active': 'Actif',
@@ -2382,7 +2541,7 @@ const translations = {
     'search_placeholder': 'Rechercher par nom...',
     'no_borrowed_money_history': 'Aucun enregistrement',
     'no_borrowed_money_history_subtitle': 'Les enregistrements d\'argent que vous avez prêté apparaîtront ici',
-    
+
     // Insights Screen
     'insights_title': 'Aperçus',
     'week': 'Semaine',
@@ -2417,7 +2576,7 @@ const translations = {
     'start_categorizing_expenses': 'Commencez à catégoriser vos dépenses',
     'review_past_uncategorized_spending': 'Passez en revue les dépenses non catégorisées',
     'set_up_a_basic_tracking_system': 'Mettre en place un système de suivi simple',
-    
+
     // Common recommendation messages
     'consider_reducing_utility_expenses': 'Envisagez de réduire les dépenses de services publics',
     'utility_spending_tip': 'Vos dépenses en services publics sont élevées. Essayez de passer à des appareils écoénergétiques.',
@@ -2432,7 +2591,7 @@ const translations = {
     'spending_higher_this_month': 'Vos dépenses sont {percent}% plus élevées que le mois dernier.',
     'spending_reduced_this_month': 'Vous avez réduit vos dépenses de {percent}% par rapport au mois dernier.',
     'utility_spending_percentage_tip': 'Vos dépenses en services publics représentent {percent}% des dépenses totales. Essayez de passer à des appareils écoénergétiques.',
-    
+
     // More Screen
     'more_screen_title': 'Plus',
     'more_screen_financial_tools': 'Outils financiers',
@@ -2521,7 +2680,7 @@ const translations = {
     'profile_screen_deleting_account': 'Suppression de votre compte...',
     'profile_screen_sign_out_confirmation': 'Êtes-vous sûr de vouloir vous déconnecter de votre compte ?',
     'profile_screen_unexpected_error': 'Une erreur inattendue s\'est produite. Veuillez réessayer.',
-    
+
     // Settings Screen
     'settings_screen_title': 'Paramètres et actions',
     'settings_screen_max_security': 'Sécurité maximale active',
@@ -2555,7 +2714,7 @@ const translations = {
     'settings_screen_terms_service': 'Conditions d\'utilisation',
     'settings_screen_select_language': 'Sélectionner la langue',
     'settings_screen_select_currency': 'Sélectionner la devise',
-    'settings_screen_app_version': 'FinTracker v2.7.0',
+    'settings_screen_app_version': 'FinTracker v3.0.0',
     'settings_screen_built_with_love': 'Construit avec ❤️ pour votre liberté financière',
     'development_tools_title': 'Outils de développement',
 
@@ -2584,7 +2743,7 @@ const translations = {
     'wallet_screen_error_delete': 'Échec de la suppression du portefeuille. Veuillez réessayer.',
     'wallet_screen_no_wallets_add_money': 'Veuillez d\'abord créer un portefeuille avant d\'ajouter de l\'argent.',
     'wallet_screen_select_wallet_error': 'Veuillez sélectionner un portefeuille pour ajouter de l\'argent.',
-    
+
     // Add Money Modal
     'add_money_title': 'Ajouter de l\'argent',
     'add_money_to_wallet': 'Ajouter de l\'argent à {wallet}',
@@ -2599,12 +2758,12 @@ const translations = {
     'add_money_wallet_required': 'Veuillez sélectionner un portefeuille',
     'add_money_adding_to': 'Ajout d\'argent à ',
     'add_money_error': 'Échec de l\'ajout d\'argent. Veuillez réessayer.',
-    
+
     // Add Wallet Modal  
     'add_wallet_title': 'Ajouter un nouveau portefeuille',
     'add_wallet_preview': 'Aperçu',
     'add_wallet_name': 'Nom du portefeuille',
-    'add_wallet_type': 'Type de portefeuille', 
+    'add_wallet_type': 'Type de portefeuille',
     'add_wallet_color': 'Choisir la couleur',
     'add_wallet_initial_balance': 'Solde initial',
     'add_wallet_button': 'Ajouter le portefeuille',
@@ -2617,7 +2776,7 @@ const translations = {
     'add_wallet_balance_invalid': 'Veuillez entrer un montant valide',
     'add_wallet_balance_negative': 'Le solde ne peut pas être négatif',
     'add_wallet_default_name': 'Nom du portefeuille',
-    
+
     // Wallet Types
     'wallet_type_bank': 'Compte bancaire',
     'wallet_type_bank_desc': 'Compte chèque ou épargne',
@@ -3142,7 +3301,7 @@ const translations = {
     'insights': 'الإحصائيات',
     'wallet': 'المحفظة',
     'more': 'المزيد',
-    
+
     // Home Screen
     'good_morning': 'صباح الخير!',
     'total_balance': 'الرصيد الإجمالي',
@@ -3172,8 +3331,17 @@ const translations = {
     'pocket_money': 'مصروف الجيب',
     'bank_account': 'الحساب المصرفي',
     'savings': 'المدخرات',
+    'available_on_card': 'الرصيد المتاح',
+    'swipe_hint_home': 'اسحب لليمين/اليسار لتغيير البطاقة',
+    'transfer_limit': 'حد التحويل',
+    'spent': 'المنفق',
+    'pay': 'دفع',
+    'operations': 'العمليات',
+    'view_all': 'عرض الكل',
+    'quick': 'سريع',
+    'billed_yearly': 'فوترة سنوية',
     'tip_message': 'لقد أنفقت 20% أقل هذا الأسبوع من الأسبوع الماضي. استمر!',
-    
+
     // Add Expense Modal
     'add_expense_title': 'إضافة مصروف',
     'amount': 'المبلغ',
@@ -3189,7 +3357,7 @@ const translations = {
     'title_required': 'العنوان مطلوب',
     'amount_required': 'المبلغ مطلوب',
     'valid_amount': 'يرجى إدخال مبلغ صحيح',
-    
+
     // Categories
     'food': 'طعام',
     'utilities': 'مرافق',
@@ -3202,7 +3370,7 @@ const translations = {
     'payments': 'مدفوعات',
     'other': 'أخرى',
     'uncategorized': 'غير مصنف',
-    
+
     // Income Categories
     'salary': 'راتب',
     'freelance': 'عمل حر',
@@ -3211,13 +3379,13 @@ const translations = {
     'rental': 'إيجار',
     'bonus': 'مكافأة',
     'refund': 'استرداد',
-    
+
     // Add Income Modal
     'add_income_title': 'إضافة دخل',
     'income_source': 'مصدر الدخل',
     'received_in': 'مستلم في',
     'income_description': 'لماذا تلقيت المال؟',
-    
+
     // Transfer Modal
     'transfer_title': 'تحويل الأموال',
     'from_wallet': 'من المحفظة',
@@ -3230,26 +3398,41 @@ const translations = {
     'same_wallet_error': 'لا يمكن أن تكون المحفظة المصدر والوجهة نفسها',
     'insufficient_funds': 'أموال غير كافية في المحفظة المصدر',
     'transfer_required_fields': 'يرجى ملء جميع الحقول المطلوبة',
-    
+
     // Borrowed Money
-    'add_borrowed_money_title': 'إضافة أموال مقترضة',
+    'add_borrowed_money_title': 'إضافة أموال مقترضة/مقرضة',
     'person_name': 'اسم الشخص',
+    'i_borrowed': 'اقترضت',
+    'i_lent': 'أقرضت',
+    'borrowed_from': 'مقترض من',
+    'lent_to': 'مقرض لـ',
+    'transaction_type': 'نوع المعاملة',
+    'borrowed_label': 'مقترض',
+    'lent_label': 'مقرض',
+    'amount_lent': 'المبلغ المقرض',
+    'borrowed_date_label': 'تاريخ الاقتراض',
+    'lent_date_label': 'تاريخ الإقراض',
+    'total_lent_pending': 'إجمالي ما يُستحق لك',
+    'total_borrowed_pending': 'إجمالي ما تدينه للآخرين',
     'reason': 'السبب',
     'due_date': 'تاريخ الاستحقاق',
     'add_reminder': 'إضافة تذكير',
     'borrowed_money_details': 'تفاصيل الأموال المقترضة',
-    'mark_as_paid': 'تسديد كمدفوع',
+    'mark_as_received': 'تحديد كمستلم',
+    'mark_paid_confirmation': 'هل أنت متأكد أنك تريد تحديد الدفع لـ {name} كمكتمل؟',
+    'mark_received_confirmation': 'هل أنت متأكد أنك تريد تحديد الدفع من {name} كمستلم؟',
     'edit': 'تعديل',
     'delete': 'حذف',
     'confirm_delete': 'تأكيد الحذف',
     'delete_confirmation': 'هل أنت متأكد من أنك تريد حذف سجل الأموال المقترضة هذا؟',
+    'delete_record_confirmation': 'هل أنت متأكد من أنك تريد حذف السجل الخاص بـ {name}؟',
     'cancel': 'إلغاء',
     'confirm': 'تأكيد',
     'person_name_required': 'اسم الشخص مطلوب',
     'reason_required': 'السبب مطلوب',
     'name_placeholder': 'أدخل اسم الشخص',
     'reason_placeholder': 'لماذا كانت الأموال؟',
-    
+
     // Additional fields
     'person_details': 'تفاصيل الشخص',
     'loan_details': 'تفاصيل القرض',
@@ -3262,22 +3445,20 @@ const translations = {
     'email_placeholder': 'أدخل عنوان البريد الإلكتروني',
     'amount_placeholder': 'أدخل المبلغ',
     'notes_placeholder': 'ملاحظات أو تعليقات إضافية',
-    
+
     // Additional status and field labels
     'pending': 'معلق',
     'amount_borrowed': 'المبلغ المقترض',
     'borrowed_date': 'تاريخ الاقتراض',
     'save_changes': 'حفظ التغييرات',
     'delete_record': 'حذف السجل',
-    'mark_paid_confirmation': 'هل أنت متأكد من أنك تريد تسديد هذا الدين من {name} كمدفوع؟',
-    'delete_record_confirmation': 'هل أنت متأكد من أنك تريد حذف هذا السجل لـ {name}؟',
-    
+
     // Transactions History Screen
     'loading_transactions': 'جاري تحميل المعاملات...',
     'loading_more': 'تحميل المزيد...',
     'no_filtered_transactions': 'لم يتم العثور على معاملات {filter}',
     'first_transaction': 'ابدأ بإضافة معاملتك الأولى',
-    
+
     // Borrowed Money History Screen
     'total_pending': 'إجمالي المعلق',
     'total_paid': 'إجمالي المدفوع',
@@ -3287,15 +3468,23 @@ const translations = {
     'loading_borrowed_money': 'جاري تحميل سجلات الأموال المقترضة...',
     'add_first_borrowed_record': 'أضف أول سجل للأموال المقترضة',
     'no_filtered_records': 'لم يتم العثور على سجلات {filter}',
-    
+
     // AddIncomeScreen
     'summary': 'ملخص',
     'wallet_label': 'محفظة',
     'income_note_placeholder': 'أضف ملاحظة حول هذا الدخل...',
+    'lent_money_to': 'أقرضت مالاً لـ {name}',
+    'borrowed_money_from': 'اقترضت مالاً من {name}',
+    'lent_for': 'مقرض لأجل: {reason}',
+    'borrowed_for': 'مقترض لأجل: {reason}',
+    'recovered_loan_from': 'استرداد القرض من {name}',
+    'repaid_debt_to': 'سداد الدين لـ {name}',
+    'loan_recovery': 'استرداد القرض',
+    'debt_repayment': 'سداد الدين',
     'success': 'نجح!',
     'ok': 'موافق',
     'income_added_success': 'تم إضافة دخل بقيمة {amount} إلى {wallet}.',
-    
+
     // NotificationCenterScreen
     'notifications_title': 'الإشعارات',
     'notifications': 'الإشعارات',
@@ -3324,7 +3513,7 @@ const translations = {
     'delete_notification_confirm': 'هل أنت متأكد من أنك تريد حذف هذا الإشعار؟',
     'clear_all_notifications': 'مسح جميع الإشعارات',
     'clear_all_confirm': 'هل أنت متأكد من أنك تريد مسح جميع الإشعارات؟ لا يمكن التراجع عن هذا الإجراء.',
-    
+
     // Notification Categories and Frequencies
     'transactions': 'المعاملات',
     'budgets': 'الميزانيات',
@@ -3334,7 +3523,7 @@ const translations = {
     'daily_digest': 'ملخص يومي',
     'weekly_report': 'تقرير أسبوعي',
     'monthly_report': 'تقرير شهري',
-    
+
     // Transactions History
     'transactions_history': 'تاريخ المعاملات',
     'all': 'الكل',
@@ -3361,7 +3550,7 @@ const translations = {
     'type': 'النوع',
     'period': 'الفترة',
     'failed_to_load_transactions': 'فشل في تحميل المعاملات',
-    
+
     // Borrowed Money History  
     'borrowed_money_history': 'تاريخ الأموال المقترضة',
     'active': 'نشط',
@@ -3369,7 +3558,7 @@ const translations = {
     'search_placeholder': 'البحث باسم الشخص...',
     'no_borrowed_money_history': 'لا توجد سجلات للأموال المقترضة',
     'no_borrowed_money_history_subtitle': 'ستظهر سجلات الأموال التي أقرضتها هنا',
-    
+
     // Insights Screen
     'insights_title': 'الإحصائيات',
     'week': 'أسبوع',
@@ -3404,7 +3593,7 @@ const translations = {
     'start_categorizing_expenses': 'ابدأ بتصنيف المصروفات',
     'review_past_uncategorized_spending': 'راجع المصروفات السابقة غير المصنفة',
     'set_up_a_basic_tracking_system': 'أنشئ نظام تتبع أساسي',
-    
+
     // Common recommendation messages
     'consider_reducing_utility_expenses': 'فكر في تقليل مصاريف المرافق',
     'utility_spending_tip': 'إنفاقك على المرافق عالي. جرب الأجهزة الموفرة للطاقة.',
@@ -3419,7 +3608,7 @@ const translations = {
     'spending_higher_this_month': 'إنفاقك أعلى بنسبة {percent}% من الشهر الماضي.',
     'spending_reduced_this_month': 'لقد قللت من الإنفاق بنسبة {percent}% مقارنة بالشهر الماضي.',
     'utility_spending_percentage_tip': 'إنفاقك على المرافق {percent}% من إجمالي المصاريف. جرب الأجهزة الموفرة للطاقة.',
-    
+
     // More Screen
     'more_screen_title': 'المزيد',
     'more_screen_financial_tools': 'أدوات مالية',
@@ -3508,7 +3697,7 @@ const translations = {
     'profile_screen_deleting_account': 'جارٍ حذف حسابك…',
     'profile_screen_sign_out_confirmation': 'هل أنت متأكد من تسجيل الخروج من حسابك؟',
     'profile_screen_unexpected_error': 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.',
-    
+
     // Settings Screen
     'settings_screen_title': 'الإعدادات والإجراءات',
     'settings_screen_max_security': 'الحد الأقصى للأمان نشط',
@@ -3542,7 +3731,7 @@ const translations = {
     'settings_screen_terms_service': 'شروط الخدمة',
     'settings_screen_select_language': 'اختر اللغة',
     'settings_screen_select_currency': 'اختر العملة',
-    'settings_screen_app_version': 'FinTracker v2.7.0',
+    'settings_screen_app_version': 'FinTracker v3.0.0',
     'settings_screen_built_with_love': 'بُني بـ ❤️ من أجل حريتك المالية',
     'development_tools_title': 'أدوات التطوير',
 
@@ -3571,7 +3760,7 @@ const translations = {
     'wallet_screen_error_delete': 'فشل في حذف المحفظة. يرجى المحاولة مرة أخرى.',
     'wallet_screen_no_wallets_add_money': 'يرجى إنشاء محفظة أولاً قبل إضافة المال.',
     'wallet_screen_select_wallet_error': 'يرجى اختيار محفظة لإضافة المال إليها.',
-    
+
     // Add Money Modal
     'add_money_title': 'إضافة مال',
     'add_money_to_wallet': 'إضافة مال إلى {wallet}',
@@ -3586,12 +3775,12 @@ const translations = {
     'add_money_wallet_required': 'يرجى اختيار محفظة',
     'add_money_adding_to': 'إضافة مال إلى ',
     'add_money_error': 'فشل في إضافة المال. يرجى المحاولة مرة أخرى.',
-    
+
     // Add Wallet Modal  
     'add_wallet_title': 'إضافة محفظة جديدة',
     'add_wallet_preview': 'معاينة',
     'add_wallet_name': 'اسم المحفظة',
-    'add_wallet_type': 'نوع المحفظة', 
+    'add_wallet_type': 'نوع المحفظة',
     'add_wallet_color': 'اختر اللون',
     'add_wallet_initial_balance': 'الرصيد الأولي',
     'add_wallet_button': 'إضافة المحفظة',
@@ -3604,7 +3793,7 @@ const translations = {
     'add_wallet_balance_invalid': 'يرجى إدخال مبلغ صحيح',
     'add_wallet_balance_negative': 'الرصيد لا يمكن أن يكون سالباً',
     'add_wallet_default_name': 'اسم المحفظة',
-    
+
     // Wallet Types
     'wallet_type_bank': 'حساب مصرفي',
     'wallet_type_bank_desc': 'حساب جاري أو توفير',
@@ -4166,11 +4355,11 @@ export const LocalizationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     try {
       const savedLanguage = await AsyncStorage.getItem(LANGUAGE_STORAGE_KEY);
       const savedCurrency = await AsyncStorage.getItem(CURRENCY_STORAGE_KEY);
-      
+
       if (savedLanguage && ['en', 'de', 'ar'].includes(savedLanguage)) {
         setLanguageState(savedLanguage as Language);
       }
-      
+
       if (savedCurrency && ['USD', 'EUR', 'MAD'].includes(savedCurrency)) {
         setCurrencyState(savedCurrency as Currency);
       }
@@ -4219,7 +4408,7 @@ export const LocalizationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       // eslint-disable-next-line no-console
       console.warn(`[i18n] Missing translation for key "${key}" (lang=${language})`);
     }
-    
+
     // Replace parameters in the translation string
     if (params) {
       Object.keys(params).forEach(paramKey => {
@@ -4227,23 +4416,23 @@ export const LocalizationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         translation = translation.replace(regex, String(params[paramKey]));
       });
     }
-    
+
     return translation;
   };
 
   const formatCurrency = (amount: number): string => {
     const symbol = currencySymbols[currency];
     const formattedAmount = Math.abs(amount).toFixed(2);
-    
+
     // For Arabic and some currencies, format differently
     if (language === 'ar') {
       return `${formattedAmount} ${symbol}`;
     }
-    
+
     if (currency === 'MAD') {
       return `${formattedAmount} ${symbol}`;
     }
-    
+
     return `${symbol}${formattedAmount}`;
   };
 

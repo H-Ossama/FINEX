@@ -108,6 +108,7 @@ ios/*.xcuserdata
 *.tmp
 *.temp
 *~
+ChatGPT Image *
 
 # Backend files (if not needed in main repo)
 backend/node_modules/

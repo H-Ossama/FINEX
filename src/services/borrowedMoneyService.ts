@@ -23,7 +23,12 @@ export class BorrowedMoneyService {
     try {
       const data = await AsyncStorage.getItem(BORROWED_MONEY_KEY);
       if (data) {
-        this.borrowedMoneyList = JSON.parse(data);
+        const parsed = JSON.parse(data);
+        // Migrating existing data to have a type
+        this.borrowedMoneyList = parsed.map((item: any) => ({
+          ...item,
+          type: item.type || 'borrowed',
+        }));
       }
     } catch (error) {
       console.error('Error loading borrowed money from storage:', error);
@@ -41,7 +46,7 @@ export class BorrowedMoneyService {
 
   public async getAllBorrowedMoney(): Promise<BorrowedMoney[]> {
     await this.loadFromStorage();
-    return [...this.borrowedMoneyList].sort((a, b) => 
+    return [...this.borrowedMoneyList].sort((a, b) =>
       new Date(b.borrowedDate).getTime() - new Date(a.borrowedDate).getTime()
     );
   }
@@ -71,31 +76,51 @@ export class BorrowedMoneyService {
   public async getTotalBorrowedAmount(): Promise<number> {
     await this.loadFromStorage();
     return this.borrowedMoneyList
-      .filter(item => !item.isPaid)
+      .filter(item => !item.isPaid && item.type === 'borrowed')
       .reduce((total, item) => total + item.amount, 0);
   }
 
-  public async getTotalPaidAmount(): Promise<number> {
+  public async getTotalLentAmount(): Promise<number> {
     await this.loadFromStorage();
     return this.borrowedMoneyList
-      .filter(item => item.isPaid)
+      .filter(item => !item.isPaid && item.type === 'lent')
       .reduce((total, item) => total + item.amount, 0);
   }
 
-  public async addBorrowedMoney(borrowedMoney: Omit<BorrowedMoney, 'id'>): Promise<BorrowedMoney> {
+  public async getTotalPaidBorrowedAmount(): Promise<number> {
+    await this.loadFromStorage();
+    return this.borrowedMoneyList
+      .filter(item => item.isPaid && item.type === 'borrowed')
+      .reduce((total, item) => total + item.amount, 0);
+  }
+
+  public async getTotalPaidLentAmount(): Promise<number> {
+    await this.loadFromStorage();
+    return this.borrowedMoneyList
+      .filter(item => item.isPaid && item.type === 'lent')
+      .reduce((total, item) => total + item.amount, 0);
+  }
+
+  public async addBorrowedMoney(borrowedMoney: Omit<BorrowedMoney, 'id'>, t?: any): Promise<BorrowedMoney> {
     const newBorrowedMoney: BorrowedMoney = {
       ...borrowedMoney,
       id: Date.now().toString(),
     };
 
-    // Create an income transaction when borrowing money (money comes into your wallet)
+    const isLent = borrowedMoney.type === 'lent';
+
+    // Create a transaction
     await hybridDataService.createTransaction({
       amount: borrowedMoney.amount,
-      description: `Borrowed money from ${borrowedMoney.personName}`,
-      type: 'INCOME',
+      description: isLent
+        ? (t ? t('lent_money_to', { name: borrowedMoney.personName }) : `Lent money to ${borrowedMoney.personName}`)
+        : (t ? t('borrowed_money_from', { name: borrowedMoney.personName }) : `Borrowed money from ${borrowedMoney.personName}`),
+      type: isLent ? 'EXPENSE' : 'INCOME',
       walletId: borrowedMoney.walletId,
       date: new Date().toISOString(),
-      notes: `Borrowed for: ${borrowedMoney.reason}`,
+      notes: t
+        ? t(isLent ? 'lent_for' : 'borrowed_for', { reason: borrowedMoney.reason })
+        : `${isLent ? 'Lent' : 'Borrowed'} for: ${borrowedMoney.reason}`,
     });
 
     this.borrowedMoneyList.push(newBorrowedMoney);
@@ -114,24 +139,30 @@ export class BorrowedMoneyService {
     return this.borrowedMoneyList[index];
   }
 
-  public async markAsPaid(id: string, walletId: string): Promise<BorrowedMoney | null> {
+  public async markAsPaid(id: string, walletId: string, t?: any): Promise<BorrowedMoney | null> {
     const borrowedMoney = await this.getBorrowedMoneyById(id);
     if (!borrowedMoney) {
       throw new Error('Borrowed money record not found');
     }
 
     if (borrowedMoney.isPaid) {
-      throw new Error('This borrowed money is already marked as paid');
+      throw new Error('This record is already marked as paid');
     }
 
-    // Create an expense transaction for the repayment (paying back the debt)
+    const isLent = borrowedMoney.type === 'lent';
+
+    // Create a transaction
     await hybridDataService.createTransaction({
       amount: borrowedMoney.amount,
-      description: `Repaid debt to ${borrowedMoney.personName}`,
-      type: 'EXPENSE',
+      description: isLent
+        ? (t ? t('recovered_loan_from', { name: borrowedMoney.personName }) : `Recovered loan from ${borrowedMoney.personName}`)
+        : (t ? t('repaid_debt_to', { name: borrowedMoney.personName }) : `Repaid debt to ${borrowedMoney.personName}`),
+      type: isLent ? 'INCOME' : 'EXPENSE',
       walletId: walletId,
       date: new Date().toISOString(),
-      notes: `Debt repayment - ${borrowedMoney.reason}`,
+      notes: t
+        ? `${t(isLent ? 'loan_recovery' : 'debt_repayment')} - ${borrowedMoney.reason}`
+        : `${isLent ? 'Loan recovery' : 'Debt repayment'} - ${borrowedMoney.reason}`,
     });
 
     // Mark as paid
@@ -166,47 +197,53 @@ export class BorrowedMoneyService {
   }
 
   public async getStatistics(): Promise<{
-    totalAmount: number;
-    totalPaid: number;
-    totalPending: number;
-    totalOverdue: number;
-    averageAmount: number;
+    totalBorrowed: number;
+    totalLent: number;
+    totalBorrowedPaid: number;
+    totalLentPaid: number;
+    totalBorrowedPending: number;
+    totalLentPending: number;
+    totalOverdueBorrowed: number;
+    totalOverdueLent: number;
     totalRecords: number;
-    paymentRate: number;
   }> {
     await this.loadFromStorage();
-    
-    const totalRecords = this.borrowedMoneyList.length;
-    const paidItems = this.borrowedMoneyList.filter(item => item.isPaid);
-    const unpaidItems = this.borrowedMoneyList.filter(item => !item.isPaid);
-    const now = new Date();
-    const overdueItems = unpaidItems.filter(item => new Date(item.dueDate) < now);
 
-    const totalAmount = this.borrowedMoneyList.reduce((sum, item) => sum + item.amount, 0);
-    const totalPaid = paidItems.reduce((sum, item) => sum + item.amount, 0);
-    const totalPending = unpaidItems.reduce((sum, item) => sum + item.amount, 0);
-    const totalOverdue = overdueItems.reduce((sum, item) => sum + item.amount, 0);
-    
-    const averageAmount = totalRecords > 0 ? totalAmount / totalRecords : 0;
-    const paymentRate = totalRecords > 0 ? (paidItems.length / totalRecords) * 100 : 0;
+    const now = new Date();
+    const borrowedItems = this.borrowedMoneyList.filter(item => item.type === 'borrowed');
+    const lentItems = this.borrowedMoneyList.filter(item => item.type === 'lent');
+
+    const totalBorrowed = borrowedItems.reduce((sum, item) => sum + item.amount, 0);
+    const totalLent = lentItems.reduce((sum, item) => sum + item.amount, 0);
+
+    const totalBorrowedPaid = borrowedItems.filter(i => i.isPaid).reduce((sum, item) => sum + item.amount, 0);
+    const totalLentPaid = lentItems.filter(i => i.isPaid).reduce((sum, item) => sum + item.amount, 0);
+
+    const totalBorrowedPending = borrowedItems.filter(i => !i.isPaid).reduce((sum, item) => sum + item.amount, 0);
+    const totalLentPending = lentItems.filter(i => !i.isPaid).reduce((sum, item) => sum + item.amount, 0);
+
+    const totalOverdueBorrowed = borrowedItems.filter(i => !i.isPaid && new Date(i.dueDate) < now).reduce((sum, item) => sum + item.amount, 0);
+    const totalOverdueLent = lentItems.filter(i => !i.isPaid && new Date(i.dueDate) < now).reduce((sum, item) => sum + item.amount, 0);
 
     return {
-      totalAmount,
-      totalPaid,
-      totalPending,
-      totalOverdue,
-      averageAmount,
-      totalRecords,
-      paymentRate,
+      totalBorrowed,
+      totalLent,
+      totalBorrowedPaid,
+      totalLentPaid,
+      totalBorrowedPending,
+      totalLentPending,
+      totalOverdueBorrowed,
+      totalOverdueLent,
+      totalRecords: this.borrowedMoneyList.length,
     };
   }
 
   public async searchBorrowedMoney(query: string): Promise<BorrowedMoney[]> {
     await this.loadFromStorage();
     const lowerQuery = query.toLowerCase();
-    
+
     return this.borrowedMoneyList
-      .filter(item => 
+      .filter(item =>
         item.personName.toLowerCase().includes(lowerQuery) ||
         item.reason.toLowerCase().includes(lowerQuery) ||
         (item.notes && item.notes.toLowerCase().includes(lowerQuery))
