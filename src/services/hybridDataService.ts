@@ -37,12 +37,12 @@ class HybridDataService {
     if (this.isInitialized) {
       return;
     }
-    
+
     if (this.initializationPromise) {
       await this.initializationPromise;
       return;
     }
-    
+
     // If no initialization is in progress, start it
     await this.initializeApp();
   }
@@ -60,12 +60,12 @@ class HybridDataService {
         },
       };
     }
-    
+
     // If initialization is already in progress, return that promise
     if (this.initializationPromise) {
       return this.initializationPromise;
     }
-    
+
     // Start new initialization
     this.initializationPromise = this._initializeApp();
     const result = await this.initializationPromise;
@@ -77,7 +77,7 @@ class HybridDataService {
     try {
       // Initialize local database
       await localStorageService.initializeDatabase();
-      
+
       // Seed default categories if needed
       const categories = await localStorageService.getCategories();
       if (categories.length === 0) {
@@ -87,7 +87,7 @@ class HybridDataService {
       // Only seed demo data if explicitly requested or this is a demo account
       const shouldSeedDemoData = await this.shouldSeedDemoData();
       const isReturningUser = await this.isReturningUser();
-      
+
       if (shouldSeedDemoData) {
         console.log('🎭 Seeding demo data...');
         // Seed default wallets if needed
@@ -151,11 +151,11 @@ class HybridDataService {
     try {
       // Import AsyncStorage to check demo settings
       const AsyncStorage = await import('@react-native-async-storage/async-storage');
-      
+
       // Check if this is a demo account or if user explicitly wants demo data
       const isDemoAccount = await AsyncStorage.default.getItem('is_demo_account');
       const seedDemoData = await AsyncStorage.default.getItem('seed_demo_data');
-      
+
       // Only seed demo data if explicitly requested:
       // 1. It's marked as a demo account, OR
       // 2. User explicitly requested demo data
@@ -170,12 +170,12 @@ class HybridDataService {
   private async isReturningUser(): Promise<boolean> {
     try {
       const AsyncStorage = await import('@react-native-async-storage/async-storage');
-      
+
       // Check if user has authentication data stored
       const rememberMe = await AsyncStorage.default.getItem('remember_me');
       const userData = await AsyncStorage.default.getItem('user_data');
       const isGoogleUser = await AsyncStorage.default.getItem('google_user');
-      
+
       // Consider them a returning user if:
       // 1. They have "remember me" enabled, OR
       // 2. They have user data stored, OR  
@@ -275,6 +275,16 @@ class HybridDataService {
     return this.getTransactions(undefined, limit);
   }
 
+  async updateTransaction(id: string, updates: Partial<LocalTransaction>): Promise<void> {
+    await this.waitForInitialization();
+    await localStorageService.updateTransaction(id, updates);
+  }
+
+  async deleteTransaction(id: string): Promise<void> {
+    await this.waitForInitialization();
+    await localStorageService.deleteTransaction(id);
+  }
+
   // Transfer Operations
   async transferMoney(transfer: {
     fromWalletId: string;
@@ -308,7 +318,7 @@ class HybridDataService {
     await this.waitForInitialization();
 
     const result = await localStorageService.getWalletTransactions(walletId, limit, offset);
-    
+
     return {
       transactions: result.transactions.map(transaction => this.convertTransactionToHybrid(transaction)),
       total: result.total,
@@ -323,7 +333,7 @@ class HybridDataService {
     await this.waitForInitialization();
 
     const result = await localStorageService.getWalletBalanceHistory(walletId, days);
-    
+
     return {
       wallet: result.wallet ? this.convertWalletToHybrid(result.wallet) : null,
       balanceHistory: result.balanceHistory,
@@ -350,7 +360,7 @@ class HybridDataService {
     transactionCount: number;
   }> {
     const transactions = await this.getTransactions();
-    
+
     const targetDate = new Date(year || new Date().getFullYear(), month || new Date().getMonth());
     const startOfMonth = new Date(targetDate.getFullYear(), targetDate.getMonth(), 1);
     const endOfMonth = new Date(targetDate.getFullYear(), targetDate.getMonth() + 1, 0);
@@ -385,8 +395,8 @@ class HybridDataService {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - days);
 
-    const categoryTransactions = transactions.filter(t => 
-      t.categoryId === categoryId && 
+    const categoryTransactions = transactions.filter(t =>
+      t.categoryId === categoryId &&
       t.type === 'EXPENSE' &&
       new Date(t.date) >= cutoffDate
     );
@@ -451,13 +461,13 @@ class HybridDataService {
             failed: p.stage === 'error',
             error: p.error,
           });
-        } catch {}
+        } catch { }
       });
 
       if (result.success) {
         try {
           await AsyncStorage.setItem('cloud_sync_enabled', 'true');
-        } catch {}
+        } catch { }
       }
 
       return { success: result.success, error: result.error };
@@ -484,7 +494,7 @@ class HybridDataService {
             failed: p.stage === 'error',
             error: p.error,
           });
-        } catch {}
+        } catch { }
       });
 
       return { success: result.success, error: result.error, lastSync: result.timestamp };
@@ -546,11 +556,11 @@ class HybridDataService {
       const wallets = await localStorageService.getWallets();
       const transactions = await localStorageService.getTransactions();
       const categories = await localStorageService.getCategories();
-      
+
       const walletsCount = wallets.length;
       const transactionsCount = transactions.length;
       const categoriesCount = categories.length;
-      
+
       return {
         wallets: walletsCount,
         transactions: transactionsCount,
@@ -576,11 +586,11 @@ class HybridDataService {
   }> {
     try {
       const dirtyItems = await localStorageService.getDirtyItems();
-      
+
       const walletsCount = dirtyItems.wallets.length;
       const transactionsCount = dirtyItems.transactions.length;
       const categoriesCount = dirtyItems.categories.length;
-      
+
       return {
         wallets: walletsCount,
         transactions: transactionsCount,
@@ -639,7 +649,7 @@ class HybridDataService {
       if (suppressed) {
         return false;
       }
-      
+
       // Check if sync reminders are completely disabled by user
       const disabled = await this.areSyncRemindersDisabled();
       if (disabled) {
@@ -670,8 +680,8 @@ class HybridDataService {
   }
 
   // Auto-sync settings
-  async getAutoSyncSettings(): Promise<{ 
-    enabled: boolean; 
+  async getAutoSyncSettings(): Promise<{
+    enabled: boolean;
     period: 'daily' | 'weekly' | 'monthly' | 'custom';
     customInterval?: number;
     customUnit?: 'hours' | 'days' | 'weeks';
@@ -684,8 +694,8 @@ class HybridDataService {
     }
   }
 
-  async setAutoSyncSettings(settings: { 
-    enabled: boolean; 
+  async setAutoSyncSettings(settings: {
+    enabled: boolean;
     period: 'daily' | 'weekly' | 'monthly' | 'custom';
     customInterval?: number;
     customUnit?: 'hours' | 'days' | 'weeks';
@@ -757,7 +767,7 @@ class HybridDataService {
   async loginUser(email: string, password: string): Promise<{ success: boolean; error?: string }> {
     const { cloudSyncService } = await import('./cloudSyncService');
     const result = await cloudSyncService.login(email, password);
-    
+
     if (result.success) {
       // Enable sync and perform initial sync
       await cloudSyncService.enableSync();
@@ -782,7 +792,7 @@ class HybridDataService {
         email: user?.email,
         isGoogleUser: !!user?.isGoogleUser,
       });
-      
+
       const getStoredAuthToken = async (): Promise<string | null> => {
         try {
           const token = await SecureStore.getItemAsync('user_token');
@@ -817,7 +827,7 @@ class HybridDataService {
             } finally {
               clearTimeout(timeoutId);
             }
-          } catch {}
+          } catch { }
 
           // Exchange stored Google ID token for backend session
           const googleIdToken = await SecureStore.getItemAsync('google_id_token');
@@ -867,17 +877,17 @@ class HybridDataService {
           error: 'Missing backend session token. Please sign in again, then retry cloud sync.',
         };
       }
-      
+
       console.log('🔑 Setting auth token for cloud sync service');
       await cloudSyncService.setAuthToken(authToken);
       await cloudSyncDiagnostics.append('info', 'Cloud sync auth token set');
-      
+
       // Check if user is already authenticated with Google
       if (user.isGoogleUser) {
         console.log('📱 Google user detected, enabling sync directly');
         // For Google users, enable sync directly since they're already authenticated
         await cloudSyncService.enableSync();
-        
+
         // Store Google sync enabled flag
         await AsyncStorage.setItem('cloud_sync_enabled', 'true');
         console.log('✅ Cloud sync enabled for Google user');
@@ -887,7 +897,7 @@ class HybridDataService {
         console.log('📧 Email user detected, enabling sync with credentials');
         // For email/password users, use their existing credentials to enable sync
         await cloudSyncService.enableSync();
-        
+
         // Store sync enabled flag
         await AsyncStorage.setItem('cloud_sync_enabled', 'true');
         console.log('✅ Cloud sync enabled for email user');
@@ -899,8 +909,8 @@ class HybridDataService {
       await cloudSyncDiagnostics.append('error', 'Enable cloud sync crashed', {
         error: error instanceof Error ? error.message : String(error),
       });
-      return { 
-        success: false, 
+      return {
+        success: false,
         error: error instanceof Error ? error.message : 'Failed to enable sync'
       };
     }
@@ -917,10 +927,10 @@ class HybridDataService {
 
   // Helper Methods
   private convertWalletToHybrid(wallet: LocalWallet): HybridWallet {
-    const syncStatus = wallet.lastSynced 
-      ? 'synced' 
-      : wallet.isDirty 
-        ? 'pending_sync' 
+    const syncStatus = wallet.lastSynced
+      ? 'synced'
+      : wallet.isDirty
+        ? 'pending_sync'
         : 'local_only';
 
     const { isDirty, ...walletData } = wallet;
@@ -1040,10 +1050,10 @@ class HybridDataService {
   }
 
   private convertTransactionToHybrid(transaction: LocalTransaction): HybridTransaction {
-    const syncStatus = transaction.lastSynced 
-      ? 'synced' 
-      : transaction.isDirty 
-        ? 'pending_sync' 
+    const syncStatus = transaction.lastSynced
+      ? 'synced'
+      : transaction.isDirty
+        ? 'pending_sync'
         : 'local_only';
 
     const { isDirty, ...transactionData } = transaction;
@@ -1164,10 +1174,10 @@ class HybridDataService {
   async clearAllData(): Promise<void> {
     try {
       console.log('🗑️ Clearing all user data...');
-      
+
       // Clear local database (wallets, transactions, categories)
       await localStorageService.clearAllData();
-      
+
       // Clear bills data
       try {
         const { billsService } = await import('./billsService');
@@ -1176,7 +1186,7 @@ class HybridDataService {
       } catch (error) {
         console.log('⚠️ Error clearing bills data:', error);
       }
-      
+
       // Clear goals data
       try {
         const { GoalsService } = await import('./goalsService');
@@ -1185,7 +1195,7 @@ class HybridDataService {
       } catch (error) {
         console.log('⚠️ Error clearing goals data:', error);
       }
-      
+
       // Clear budget data
       try {
         const { budgetService } = await import('./budgetService');
@@ -1194,7 +1204,7 @@ class HybridDataService {
       } catch (error) {
         console.log('⚠️ Error clearing budget data:', error);
       }
-      
+
       // Clear sync status
       try {
         const { cloudSyncService } = await import('./cloudSyncService');
@@ -1202,10 +1212,10 @@ class HybridDataService {
       } catch (error) {
         console.log('Could not clear sync data:', error);
       }
-      
+
       // Reset initialization state
       this.isInitialized = false;
-      
+
       console.log('✅ All user data cleared successfully');
     } catch (error) {
       console.error('❌ Error clearing user data:', error);
@@ -1217,26 +1227,26 @@ class HybridDataService {
   async enableDemoMode(): Promise<{ success: boolean; error?: string }> {
     try {
       console.log('🎭 Enabling demo mode...');
-      
+
       // Set demo flag
       const AsyncStorage = await import('@react-native-async-storage/async-storage');
       await AsyncStorage.default.setItem('is_demo_account', 'true');
       await AsyncStorage.default.setItem('seed_demo_data', 'true');
-      
+
       // Clear existing data first
       await this.clearAllData();
-      
+
       // Re-initialize with demo data
       await this.initializeApp();
-      
+
       // Import and seed demo goals
       const { GoalsService } = await import('./goalsService');
       await GoalsService.seedDemoGoals();
-      
+
       // Import and seed demo reminders, bills, budgets
       const { dataInitializationService } = await import('./dataInitializationService');
       await dataInitializationService.initializeSampleData();
-      
+
       console.log('✅ Demo mode enabled successfully');
       return { success: true };
     } catch (error) {
@@ -1252,18 +1262,18 @@ class HybridDataService {
   async disableDemoMode(): Promise<{ success: boolean; error?: string }> {
     try {
       console.log('🚫 Disabling demo mode...');
-      
+
       // Clear demo flags
       const AsyncStorage = await import('@react-native-async-storage/async-storage');
       await AsyncStorage.default.removeItem('is_demo_account');
       await AsyncStorage.default.removeItem('seed_demo_data');
-      
+
       // Clear all data
       await this.clearAllData();
-      
+
       // Re-initialize as fresh app
       await this.initializeApp();
-      
+
       console.log('✅ Demo mode disabled successfully');
       return { success: true };
     } catch (error) {

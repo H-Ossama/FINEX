@@ -15,14 +15,15 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { hybridDataService, HybridWallet } from '../services/hybridDataService';
+import { hybridDataService, HybridWallet, HybridTransaction } from '../services/hybridDataService';
 import { useTheme } from '../contexts/ThemeContext';
+import { useLocalization } from '../contexts/LocalizationContext';
 import { useWalletVisibility } from '../hooks/useWalletVisibility';
 
 interface AddIncomeModalProps {
   visible: boolean;
   onClose: () => void;
-  onAddIncome: (income: {
+  onAddIncome?: (income: {
     title: string;
     amount: number;
     category: string;
@@ -30,6 +31,8 @@ interface AddIncomeModalProps {
     date: string;
     description?: string;
   }) => void;
+  editTransaction?: HybridTransaction | null;
+  onUpdateIncome?: (id: string, updates: any) => void;
 }
 
 const { width } = Dimensions.get('window');
@@ -49,8 +52,11 @@ const AddIncomeModal: React.FC<AddIncomeModalProps> = ({
   visible,
   onClose,
   onAddIncome,
+  editTransaction,
+  onUpdateIncome,
 }) => {
   const { theme } = useTheme();
+  const { t } = useLocalization();
   const { formatWalletBalance } = useWalletVisibility();
   const insets = useSafeAreaInsets();
   const [title, setTitle] = useState('');
@@ -65,9 +71,20 @@ const AddIncomeModal: React.FC<AddIncomeModalProps> = ({
 
   useEffect(() => {
     if (visible) {
-      loadWallets();
+      loadWallets().then(() => {
+        if (editTransaction) {
+          setTitle(editTransaction.description || '');
+          setAmount(editTransaction.amount.toString());
+          const category = incomeCategories.find(c => c.name === editTransaction.categoryId) || incomeCategories[0];
+          setSelectedCategory(category);
+          setDescription(editTransaction.notes || '');
+          setDate(new Date(editTransaction.date));
+        } else {
+          resetForm();
+        }
+      });
     }
-  }, [visible]);
+  }, [visible, editTransaction]);
 
   const loadWallets = async () => {
     try {
@@ -112,16 +129,29 @@ const AddIncomeModal: React.FC<AddIncomeModalProps> = ({
 
   const handleSubmit = () => {
     if (validateForm() && selectedWallet) {
-      const income = {
+      const incomeData = {
         title: title.trim(),
         amount: parseFloat(amount),
         category: selectedCategory.name,
+        categoryId: selectedCategory.id,
         walletId: selectedWallet.id,
         date: date.toISOString().split('T')[0],
         description: description.trim() || undefined,
       };
 
-      onAddIncome(income);
+      if (editTransaction) {
+        onUpdateIncome?.(editTransaction.id, {
+          amount: incomeData.amount,
+          description: incomeData.title,
+          notes: incomeData.description,
+          walletId: incomeData.walletId,
+          categoryId: incomeData.categoryId,
+          date: incomeData.date,
+        });
+      } else {
+        onAddIncome?.(incomeData);
+      }
+
       resetForm();
       onClose();
     }
@@ -156,16 +186,16 @@ const AddIncomeModal: React.FC<AddIncomeModalProps> = ({
     >
       <View style={{ flex: 1, backgroundColor: '#1C1C1E' }}>
         <StatusBar barStyle="light-content" backgroundColor="#1C1C1E" />
-        
+
         {/* Dark Header */}
         <View style={[styles.darkHeader, { paddingTop: insets.top }]}>
           <View style={styles.headerRow}>
             <TouchableOpacity onPress={handleClose} style={styles.headerButton}>
               <Ionicons name="close" size={24} color="#FFFFFF" />
             </TouchableOpacity>
-            <Text style={styles.headerTitle}>Add Income</Text>
+            <Text style={styles.headerTitle}>{editTransaction ? t('edit_income_title') : t('add_income_title')}</Text>
             <TouchableOpacity onPress={handleSubmit} style={styles.headerButton}>
-              <Text style={styles.saveButtonText}>Save</Text>
+              <Text style={styles.saveButtonText}>{t('save')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -173,166 +203,166 @@ const AddIncomeModal: React.FC<AddIncomeModalProps> = ({
         {/* Content Container with rounded top */}
         <View style={[styles.contentContainer, { backgroundColor: theme.colors.background }]}>
 
-        <KeyboardAvoidingView
-          style={styles.keyboardAvoidingView}
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
-        >
-          <ScrollView 
-            style={styles.content} 
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-            contentContainerStyle={{ paddingBottom: 20 }}
+          <KeyboardAvoidingView
+            style={styles.keyboardAvoidingView}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
           >
-          {/* Amount Input */}
-          <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Amount</Text>
-            <View style={[styles.amountContainer, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }, errors.amount && styles.inputError]}>
-              <Text style={[styles.currencySymbol, { color: theme.colors.success }]}>$</Text>
-              <TextInput
-                style={[styles.amountInput, { color: theme.colors.success }]}
-                placeholder="0.00"
-                placeholderTextColor={theme.colors.textSecondary}
-                value={amount}
-                onChangeText={setAmount}
-                keyboardType="decimal-pad"
-                autoFocus
-              />
-            </View>
-            {errors.amount && <Text style={styles.errorText}>{errors.amount}</Text>}
-          </View>
-
-          {/* Title Input */}
-          <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Title</Text>
-            <TextInput
-              style={[styles.input, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, color: theme.colors.text }, errors.title && styles.inputError]}
-              placeholder="What income did you receive?"
-              placeholderTextColor={theme.colors.textSecondary}
-              value={title}
-              onChangeText={setTitle}
-            />
-            {errors.title && <Text style={styles.errorText}>{errors.title}</Text>}
-          </View>
-
-          {/* Category Selection */}
-          <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Category</Text>
             <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              style={styles.categoriesScroll}
+              style={styles.content}
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+              contentContainerStyle={{ paddingBottom: 20 }}
             >
-              {incomeCategories.map((category) => (
-                <TouchableOpacity
-                  key={category.id}
-                  style={[
-                    styles.categoryItem,
-                    selectedCategory.id === category.id && { backgroundColor: theme.isDark ? theme.colors.card : '#E8F5E8' },
-                  ]}
-                  onPress={() => setSelectedCategory(category)}
-                >
-                  <View
-                    style={[
-                      styles.categoryIcon,
-                      { backgroundColor: category.color },
-                      selectedCategory.id === category.id && styles.categoryIconSelected,
-                    ]}
-                  >
-                    <Text style={styles.categoryEmoji}>{category.icon}</Text>
-                  </View>
-                  <Text
-                    style={[
-                      styles.categoryName,
-                      { color: theme.colors.textSecondary },
-                      selectedCategory.id === category.id && { color: theme.colors.success, fontWeight: '600' },
-                    ]}
-                  >
-                    {category.name}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
+              {/* Amount Input */}
+              <View style={styles.section}>
+                <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Amount</Text>
+                <View style={[styles.amountContainer, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }, errors.amount && styles.inputError]}>
+                  <Text style={[styles.currencySymbol, { color: theme.colors.success }]}>$</Text>
+                  <TextInput
+                    style={[styles.amountInput, { color: theme.colors.success }]}
+                    placeholder="0.00"
+                    placeholderTextColor={theme.colors.textSecondary}
+                    value={amount}
+                    onChangeText={setAmount}
+                    keyboardType="decimal-pad"
+                    autoFocus
+                  />
+                </View>
+                {errors.amount && <Text style={styles.errorText}>{errors.amount}</Text>}
+              </View>
 
-          {/* Wallet Selection */}
-          <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Add To</Text>
-            <View style={[styles.walletsContainer, { backgroundColor: theme.colors.surface }]}>
-              {wallets.map((wallet: HybridWallet) => (
-                <TouchableOpacity
-                  key={wallet.id}
-                  style={[
-                    styles.walletItem,
-                    { borderBottomColor: theme.colors.border },
-                    selectedWallet?.id === wallet.id && { backgroundColor: theme.isDark ? theme.colors.card : '#E8F5E8' },
-                  ]}
-                  onPress={() => setSelectedWallet(wallet)}
+              {/* Title Input */}
+              <View style={styles.section}>
+                <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Title</Text>
+                <TextInput
+                  style={[styles.input, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, color: theme.colors.text }, errors.title && styles.inputError]}
+                  placeholder="What income did you receive?"
+                  placeholderTextColor={theme.colors.textSecondary}
+                  value={title}
+                  onChangeText={setTitle}
+                />
+                {errors.title && <Text style={styles.errorText}>{errors.title}</Text>}
+              </View>
+
+              {/* Category Selection */}
+              <View style={styles.section}>
+                <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Category</Text>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  style={styles.categoriesScroll}
                 >
-                  <View style={styles.walletLeft}>
-                    <View style={[styles.walletIcon, { backgroundColor: wallet.color }]}>
-                      <Ionicons
-                        name={
-                          wallet.type === 'BANK'
-                            ? 'card'
-                            : wallet.type === 'CASH'
-                            ? 'cash'
-                            : 'wallet'
-                        }
-                        size={16}
-                        color="white"
-                      />
-                    </View>
-                    <View>
-                      <Text style={[styles.walletName, { color: theme.colors.text }]}>{wallet.name}</Text>
-                      <Text style={[styles.walletBalance, { color: theme.colors.textSecondary }]}>
-                        {formatWalletBalance(wallet.balance, wallet.id)}
+                  {incomeCategories.map((category) => (
+                    <TouchableOpacity
+                      key={category.id}
+                      style={[
+                        styles.categoryItem,
+                        selectedCategory.id === category.id && { backgroundColor: theme.isDark ? theme.colors.card : '#E8F5E8' },
+                      ]}
+                      onPress={() => setSelectedCategory(category)}
+                    >
+                      <View
+                        style={[
+                          styles.categoryIcon,
+                          { backgroundColor: category.color },
+                          selectedCategory.id === category.id && styles.categoryIconSelected,
+                        ]}
+                      >
+                        <Text style={styles.categoryEmoji}>{category.icon}</Text>
+                      </View>
+                      <Text
+                        style={[
+                          styles.categoryName,
+                          { color: theme.colors.textSecondary },
+                          selectedCategory.id === category.id && { color: theme.colors.success, fontWeight: '600' },
+                        ]}
+                      >
+                        {category.name}
                       </Text>
-                    </View>
-                  </View>
-                  {selectedWallet?.id === wallet.id && (
-                    <Ionicons name="checkmark-circle" size={20} color={theme.colors.success} />
-                  )}
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+
+              {/* Wallet Selection */}
+              <View style={styles.section}>
+                <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Add To</Text>
+                <View style={[styles.walletsContainer, { backgroundColor: theme.colors.surface }]}>
+                  {wallets.map((wallet: HybridWallet) => (
+                    <TouchableOpacity
+                      key={wallet.id}
+                      style={[
+                        styles.walletItem,
+                        { borderBottomColor: theme.colors.border },
+                        selectedWallet?.id === wallet.id && { backgroundColor: theme.isDark ? theme.colors.card : '#E8F5E8' },
+                      ]}
+                      onPress={() => setSelectedWallet(wallet)}
+                    >
+                      <View style={styles.walletLeft}>
+                        <View style={[styles.walletIcon, { backgroundColor: wallet.color }]}>
+                          <Ionicons
+                            name={
+                              wallet.type === 'BANK'
+                                ? 'card'
+                                : wallet.type === 'CASH'
+                                  ? 'cash'
+                                  : 'wallet'
+                            }
+                            size={16}
+                            color="white"
+                          />
+                        </View>
+                        <View>
+                          <Text style={[styles.walletName, { color: theme.colors.text }]}>{wallet.name}</Text>
+                          <Text style={[styles.walletBalance, { color: theme.colors.textSecondary }]}>
+                            {formatWalletBalance(wallet.balance, wallet.id)}
+                          </Text>
+                        </View>
+                      </View>
+                      {selectedWallet?.id === wallet.id && (
+                        <Ionicons name="checkmark-circle" size={20} color={theme.colors.success} />
+                      )}
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+
+              {/* Date Selection */}
+              <View style={styles.section}>
+                <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Date</Text>
+                <TouchableOpacity style={[styles.dateButton, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]} onPress={() => setShowDatePicker(true)}>
+                  <Ionicons name="calendar-outline" size={20} color={theme.colors.textSecondary} />
+                  <Text style={[styles.dateText, { color: theme.colors.text }]}>{formatDate(date)}</Text>
+                  <Ionicons name="chevron-forward" size={16} color={theme.colors.textSecondary} />
                 </TouchableOpacity>
-              ))}
-            </View>
-          </View>
+              </View>
 
-          {/* Date Selection */}
-          <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Date</Text>
-            <TouchableOpacity style={[styles.dateButton, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]} onPress={() => setShowDatePicker(true)}>
-              <Ionicons name="calendar-outline" size={20} color={theme.colors.textSecondary} />
-              <Text style={[styles.dateText, { color: theme.colors.text }]}>{formatDate(date)}</Text>
-              <Ionicons name="chevron-forward" size={16} color={theme.colors.textSecondary} />
-            </TouchableOpacity>
-          </View>
+              {/* Description Input */}
+              <View style={styles.section}>
+                <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Description (Optional)</Text>
+                <TextInput
+                  style={[styles.input, styles.descriptionInput, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, color: theme.colors.text }]}
+                  placeholder="Add a note..."
+                  placeholderTextColor={theme.colors.textSecondary}
+                  value={description}
+                  onChangeText={setDescription}
+                  multiline
+                  numberOfLines={3}
+                />
+              </View>
+            </ScrollView>
+          </KeyboardAvoidingView>
 
-          {/* Description Input */}
-          <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>Description (Optional)</Text>
-            <TextInput
-              style={[styles.input, styles.descriptionInput, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, color: theme.colors.text }]}
-              placeholder="Add a note..."
-              placeholderTextColor={theme.colors.textSecondary}
-              value={description}
-              onChangeText={setDescription}
-              multiline
-              numberOfLines={3}
+          {showDatePicker && (
+            <DateTimePicker
+              value={date}
+              mode="date"
+              display="default"
+              onChange={onDateChange}
             />
-          </View>
-        </ScrollView>
-        </KeyboardAvoidingView>
-
-        {showDatePicker && (
-          <DateTimePicker
-            value={date}
-            mode="date"
-            display="default"
-            onChange={onDateChange}
-          />
-        )}
-      </View>
+          )}
+        </View>
       </View>
     </Modal>
   );

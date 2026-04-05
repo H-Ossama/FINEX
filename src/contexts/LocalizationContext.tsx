@@ -130,6 +130,7 @@ const translations = {
 
     // Add Expense Modal
     'add_expense_title': 'Add Expense',
+    'edit_expense_title': 'Edit Expense',
     'amount': 'Amount',
     'title': 'Title',
     'category': 'Category',
@@ -168,12 +169,14 @@ const translations = {
 
     // Add Income Modal
     'add_income_title': 'Add Income',
+    'edit_income_title': 'Edit Income',
     'income_source': 'Income Source',
     'received_in': 'Received In',
     'income_description': 'What did you receive money for?',
 
     // Transfer Modal
     'transfer_title': 'Transfer Money',
+    'edit_transfer': 'Edit Transfer',
     'from_wallet': 'From Wallet',
     'to_wallet': 'To Wallet',
     'transfer_amount': 'Transfer Amount',
@@ -211,7 +214,7 @@ const translations = {
     'delete': 'Delete',
     'confirm_delete': 'Confirm Delete',
     'delete_confirmation': 'Are you sure you want to delete this borrowed money record?',
-    'delete_record_confirmation': 'Are you sure you want to delete the record for {name}?',
+    'transaction_without_description': 'No description provided',
     'cancel': 'Cancel',
     'confirm': 'Confirm',
     'person_name_required': 'Person name is required',
@@ -355,6 +358,8 @@ const translations = {
     'delete_transaction_confirmation': 'Are you sure you want to delete this transaction? This action cannot be undone.',
     'transaction_notes': 'Notes',
     'failed_to_delete_transaction': 'Failed to delete transaction',
+    'failed_to_duplicate_transaction': 'Failed to duplicate transaction',
+    'failed_to_update_transaction': 'Failed to update transaction',
 
     // Borrowed Money History  
     'borrowed_money_history': 'Borrowed Money History',
@@ -1244,6 +1249,7 @@ const translations = {
 
     // Add Expense Modal
     'add_expense_title': 'Ausgabe hinzufügen',
+    'edit_expense_title': 'Ausgabe bearbeiten',
     'amount': 'Betrag',
     'title': 'Titel',
     'category': 'Kategorie',
@@ -1282,12 +1288,14 @@ const translations = {
 
     // Add Income Modal
     'add_income_title': 'Einkommen hinzufügen',
+    'edit_income_title': 'Einkommen bearbeiten',
     'income_source': 'Einkommensquelle',
     'received_in': 'Erhalten in',
     'income_description': 'Wofür haben Sie Geld erhalten?',
 
     // Transfer Modal
     'transfer_title': 'Geld überweisen',
+    'edit_transfer': 'Transfer bearbeiten',
     'from_wallet': 'Von Geldbörse',
     'to_wallet': 'Zu Geldbörse',
     'transfer_amount': 'Überweisungsbetrag',
@@ -1325,7 +1333,7 @@ const translations = {
     'delete': 'Löschen',
     'confirm_delete': 'Löschen bestätigen',
     'delete_confirmation': 'Sind Sie sicher, dass Sie diesen Datensatz für geliehenes Geld löschen möchten?',
-    'delete_record_confirmation': 'Sind Sie sicher, dass Sie den Datensatz für {name} löschen möchten?',
+    'transaction_without_description': 'Keine Beschreibung angegeben',
     'cancel': 'Abbrechen',
     'confirm': 'Bestätigen',
     'person_name_required': 'Personenname ist erforderlich',
@@ -1450,6 +1458,9 @@ const translations = {
     'type': 'Typ',
     'period': 'Zeitraum',
     'failed_to_load_transactions': 'Transaktionen konnten nicht geladen werden',
+    'failed_to_delete_transaction': 'Fehler beim Löschen der Transaktion',
+    'failed_to_duplicate_transaction': 'Fehler beim Duplizieren der Transaktion',
+    'failed_to_update_transaction': 'Fehler beim Aktualisieren der Transaktion',
 
     // Borrowed Money History  
     'borrowed_money_history': 'Verlauf des geliehenen Geldes',
@@ -2328,6 +2339,7 @@ const translations = {
 
     // Add Expense Modal
     'add_expense_title': 'Ajouter une dépense',
+    'edit_expense_title': 'Modifier la dépense',
     'amount': 'Montant',
     'title': 'Titre',
     'category': 'Catégorie',
@@ -2366,12 +2378,14 @@ const translations = {
 
     // Add Income Modal
     'add_income_title': 'Ajouter un revenu',
+    'edit_income_title': 'Modifier le revenu',
     'income_source': 'Source de revenu',
     'received_in': 'Reçu sur',
     'income_description': 'Pourquoi avez-vous reçu de l\'argent ?',
 
     // Transfer Modal
     'transfer_title': 'Transférer de l\'argent',
+    'edit_transfer': 'Modifier le transfert',
     'from_wallet': 'Du portefeuille',
     'to_wallet': 'Vers le portefeuille',
     'transfer_amount': 'Montant du transfert',
@@ -2409,7 +2423,7 @@ const translations = {
     'delete': 'Supprimer',
     'confirm_delete': 'Confirmer la suppression',
     'delete_confirmation': 'Êtes-vous sûr de vouloir supprimer ce dossier d\'argent emprunté ?',
-    'delete_record_confirmation': 'Êtes-vous sûr de vouloir supprimer le dossier pour {name} ?',
+    'transaction_without_description': 'Aucune description fournie',
     'cancel': 'Annuler',
     'confirm': 'Confirmer',
     'person_name_required': 'Le nom de la personne est requis',
@@ -2533,6 +2547,9 @@ const translations = {
     'type': 'Type',
     'period': 'Période',
     'failed_to_load_transactions': 'Échec du chargement des transactions',
+    'failed_to_delete_transaction': 'Échec de la suppression de la transaction',
+    'failed_to_duplicate_transaction': 'Échec de la duplication de la transaction',
+    'failed_to_update_transaction': 'Échec de la mise à jour de la transaction',
 
     // Borrowed Money History  
     'borrowed_money_history': 'Historique de l\'argent emprunté',
@@ -3344,6 +3361,7 @@ const translations = {
 
     // Add Expense Modal
     'add_expense_title': 'إضافة مصروف',
+    'edit_expense_title': 'تعديل المصروف',
     'amount': 'المبلغ',
     'title': 'العنوان',
     'category': 'الفئة',
@@ -3382,12 +3400,14 @@ const translations = {
 
     // Add Income Modal
     'add_income_title': 'إضافة دخل',
+    'edit_income_title': 'تعديل الدخل',
     'income_source': 'مصدر الدخل',
     'received_in': 'مستلم في',
     'income_description': 'لماذا تلقيت المال؟',
 
     // Transfer Modal
     'transfer_title': 'تحويل الأموال',
+    'edit_transfer': 'تعديل التحويل',
     'from_wallet': 'من المحفظة',
     'to_wallet': 'إلى المحفظة',
     'transfer_amount': 'مبلغ التحويل',
@@ -3425,7 +3445,7 @@ const translations = {
     'delete': 'حذف',
     'confirm_delete': 'تأكيد الحذف',
     'delete_confirmation': 'هل أنت متأكد من أنك تريد حذف سجل الأموال المقترضة هذا؟',
-    'delete_record_confirmation': 'هل أنت متأكد من أنك تريد حذف السجل الخاص بـ {name}؟',
+    'transaction_without_description': 'لا يوجد وصف',
     'cancel': 'إلغاء',
     'confirm': 'تأكيد',
     'person_name_required': 'اسم الشخص مطلوب',
@@ -3550,6 +3570,9 @@ const translations = {
     'type': 'النوع',
     'period': 'الفترة',
     'failed_to_load_transactions': 'فشل في تحميل المعاملات',
+    'failed_to_delete_transaction': 'فشل حذف العملية',
+    'failed_to_duplicate_transaction': 'فشل تكرار العملية',
+    'failed_to_update_transaction': 'فشل تحديث العملية',
 
     // Borrowed Money History  
     'borrowed_money_history': 'تاريخ الأموال المقترضة',

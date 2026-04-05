@@ -19,7 +19,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../contexts/ThemeContext';
 import { useLocalization } from '../contexts/LocalizationContext';
 import { useWalletVisibility } from '../hooks/useWalletVisibility';
-import { hybridDataService } from '../services/hybridDataService';
+import { hybridDataService, HybridTransaction } from '../services/hybridDataService';
 import { Wallet } from '../types';
 
 interface HybridWallet {
@@ -39,18 +39,22 @@ interface TransferModalProps {
   visible: boolean;
   onClose: () => void;
   onTransfer: (transfer: any) => void;
+  editTransaction?: HybridTransaction | null;
+  onUpdateTransfer?: (id: string, updates: any) => void;
 }
 
 const TransferModal: React.FC<TransferModalProps> = ({
   visible,
   onClose,
   onTransfer,
+  editTransaction,
+  onUpdateTransfer,
 }) => {
   const { theme } = useTheme();
   const { formatCurrency, currency, t } = useLocalization();
   const { formatWalletBalance } = useWalletVisibility();
   const insets = useSafeAreaInsets();
-  
+
   const getCurrencySymbol = () => {
     const symbols = { USD: '$', EUR: '€', MAD: 'MAD' };
     return symbols[currency];
@@ -68,9 +72,25 @@ const TransferModal: React.FC<TransferModalProps> = ({
 
   useEffect(() => {
     if (visible) {
-      loadWallets();
+      loadWallets().then((fetched) => {
+        if (editTransaction && fetched) {
+          setAmount(editTransaction.amount.toString());
+          setNote(editTransaction.notes || '');
+
+          // For transfers, we need to know the 'other' wallet.
+          // In the current schema, we don't store the pair ID directly in the transaction 
+          // but we can infer or we might need to fetch the sibling.
+          // For now, let's just pre-fill the amount and note.
+          const currentWallet = fetched.find(w => w.id === editTransaction.walletId);
+          if (currentWallet) {
+            setFromWallet(currentWallet);
+          }
+        } else {
+          resetForm();
+        }
+      });
     }
-  }, [visible]);
+  }, [visible, editTransaction]);
 
   // Handle Android back button
   useEffect(() => {
@@ -90,9 +110,11 @@ const TransferModal: React.FC<TransferModalProps> = ({
       setLoading(true);
       const fetchedWallets = await hybridDataService.getWallets();
       setWallets(fetchedWallets);
+      return fetchedWallets;
     } catch (error) {
       console.error('Error loading wallets:', error);
       Alert.alert('Error', 'Failed to load wallets');
+      return null;
     } finally {
       setLoading(false);
     }
@@ -153,21 +175,31 @@ const TransferModal: React.FC<TransferModalProps> = ({
 
     try {
       setTransferring(true);
-      
-      await hybridDataService.transferMoney({
+
+      const transferData = {
         fromWalletId: fromWallet.id,
         toWalletId: toWallet.id,
         amount: transferAmount,
         description: note || undefined,
-      });
+      };
 
-      Alert.alert('Success', 'Transfer completed successfully!');
-      onTransfer({
-        fromWallet: fromWallet.name,
-        toWallet: toWallet.name,
-        amount: transferAmount,
-        note,
-      });
+      if (editTransaction) {
+        // Note: Updating a transfer is complex because it involve 2 transactions.
+        // For now, we'll use the onUpdateTransfer callback which should handle it.
+        onUpdateTransfer?.(editTransaction.id, transferData);
+      } else {
+        await hybridDataService.transferMoney(transferData);
+        onTransfer({
+          fromWallet: fromWallet.name,
+          toWallet: toWallet.name,
+          amount: transferAmount,
+          note,
+        });
+      }
+
+      if (!editTransaction) {
+        Alert.alert('Success', 'Transfer completed successfully!');
+      }
       handleClose();
     } catch (error) {
       console.error('Transfer error:', error);
@@ -177,7 +209,7 @@ const TransferModal: React.FC<TransferModalProps> = ({
     }
   };
 
-  const availableToWallets = fromWallet 
+  const availableToWallets = fromWallet
     ? wallets.filter(wallet => wallet.id !== fromWallet.id)
     : wallets;
 
@@ -198,10 +230,10 @@ const TransferModal: React.FC<TransferModalProps> = ({
         {selectedWallet ? (
           <View style={styles.selectedWallet}>
             <View style={[styles.walletIcon, { backgroundColor: selectedWallet.color }]}>
-              <Ionicons 
-                name={getWalletIcon(selectedWallet.type)} 
-                size={16} 
-                color="white" 
+              <Ionicons
+                name={getWalletIcon(selectedWallet.type)}
+                size={16}
+                color="white"
               />
             </View>
             <View style={styles.walletInfo}>
@@ -234,10 +266,10 @@ const TransferModal: React.FC<TransferModalProps> = ({
               }}
             >
               <View style={[styles.walletIcon, { backgroundColor: wallet.color }]}>
-                <Ionicons 
-                  name={getWalletIcon(wallet.type)} 
-                  size={16} 
-                  color="white" 
+                <Ionicons
+                  name={getWalletIcon(wallet.type)}
+                  size={16}
+                  color="white"
                 />
               </View>
               <View style={styles.walletInfo}>
@@ -254,27 +286,27 @@ const TransferModal: React.FC<TransferModalProps> = ({
   );
 
   return (
-    <Modal 
-      visible={visible} 
-      animationType="slide" 
+    <Modal
+      visible={visible}
+      animationType="slide"
       presentationStyle="pageSheet"
       onRequestClose={handleClose}
     >
       <View style={{ flex: 1, backgroundColor: '#1C1C1E' }}>
         <StatusBar barStyle="light-content" backgroundColor="#1C1C1E" />
-        
+
         {/* Dark Header */}
         <View style={[styles.darkHeader, { paddingTop: insets.top }]}>
           <View style={styles.headerRow}>
             <TouchableOpacity style={styles.headerButton} onPress={handleClose}>
               <Text style={styles.cancelButton}>{t('cancel')}</Text>
             </TouchableOpacity>
-            <Text style={styles.headerTitle}>{t('transfer_title')}</Text>
+            <Text style={styles.headerTitle}>{editTransaction ? t('edit_transfer') : t('transfer_title')}</Text>
             <TouchableOpacity style={styles.headerButton} onPress={handleTransfer} disabled={transferring}>
               {transferring ? (
                 <ActivityIndicator size="small" color="#3B82F6" />
               ) : (
-                <Text style={styles.saveButton}>{t('confirm_transfer')}</Text>
+                <Text style={styles.saveButton}>{editTransaction ? t('save') : t('confirm_transfer')}</Text>
               )}
             </TouchableOpacity>
           </View>
@@ -283,142 +315,142 @@ const TransferModal: React.FC<TransferModalProps> = ({
         {/* Content Container with rounded top */}
         <View style={[styles.contentContainer, { backgroundColor: theme.colors.background }]}>
 
-        {loading ? (
-          <View style={[styles.loadingContainer, { backgroundColor: theme.colors.background }]}>
-            <ActivityIndicator size="large" color={theme.colors.primary} />
-            <Text style={[styles.loadingText, { color: theme.colors.text }]}>{t('loading')}</Text>
-          </View>
-        ) : (
-          <KeyboardAvoidingView
-            style={styles.keyboardAvoidingView}
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
-          >
-            <ScrollView 
-              style={styles.content} 
-              showsVerticalScrollIndicator={false}
-              keyboardShouldPersistTaps="handled"
-              contentContainerStyle={{ paddingBottom: 20 }}
+          {loading ? (
+            <View style={[styles.loadingContainer, { backgroundColor: theme.colors.background }]}>
+              <ActivityIndicator size="large" color={theme.colors.primary} />
+              <Text style={[styles.loadingText, { color: theme.colors.text }]}>{t('loading')}</Text>
+            </View>
+          ) : (
+            <KeyboardAvoidingView
+              style={styles.keyboardAvoidingView}
+              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+              keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
             >
-          {/* Transfer Direction Indicator */}
-          <View style={styles.transferFlow}>
-            <View style={styles.flowStep}>
-              <View style={[styles.flowIcon, { backgroundColor: fromWallet?.color || theme.colors.primary }]}>
-                <Ionicons 
-                  name={fromWallet ? getWalletIcon(fromWallet.type) : 'wallet'} 
-                  size={20} 
-                  color="white" 
-                />
-              </View>
-              <Text style={[styles.flowText, { color: theme.colors.textSecondary }]}>
-                {fromWallet ? fromWallet.name : t('from_wallet')}
-              </Text>
-            </View>
-            <Ionicons name="arrow-forward" size={24} color={theme.colors.primary} />
-            <View style={styles.flowStep}>
-              <View style={[styles.flowIcon, { backgroundColor: toWallet?.color || theme.colors.success }]}>
-                <Ionicons 
-                  name={toWallet ? getWalletIcon(toWallet.type) : 'wallet'} 
-                  size={20} 
-                  color="white" 
-                />
-              </View>
-              <Text style={[styles.flowText, { color: theme.colors.textSecondary }]}>
-                {toWallet ? toWallet.name : t('to_wallet')}
-              </Text>
-            </View>
-          </View>
+              <ScrollView
+                style={styles.content}
+                showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
+                contentContainerStyle={{ paddingBottom: 20 }}
+              >
+                {/* Transfer Direction Indicator */}
+                <View style={styles.transferFlow}>
+                  <View style={styles.flowStep}>
+                    <View style={[styles.flowIcon, { backgroundColor: fromWallet?.color || theme.colors.primary }]}>
+                      <Ionicons
+                        name={fromWallet ? getWalletIcon(fromWallet.type) : 'wallet'}
+                        size={20}
+                        color="white"
+                      />
+                    </View>
+                    <Text style={[styles.flowText, { color: theme.colors.textSecondary }]}>
+                      {fromWallet ? fromWallet.name : t('from_wallet')}
+                    </Text>
+                  </View>
+                  <Ionicons name="arrow-forward" size={24} color={theme.colors.primary} />
+                  <View style={styles.flowStep}>
+                    <View style={[styles.flowIcon, { backgroundColor: toWallet?.color || theme.colors.success }]}>
+                      <Ionicons
+                        name={toWallet ? getWalletIcon(toWallet.type) : 'wallet'}
+                        size={20}
+                        color="white"
+                      />
+                    </View>
+                    <Text style={[styles.flowText, { color: theme.colors.textSecondary }]}>
+                      {toWallet ? toWallet.name : t('to_wallet')}
+                    </Text>
+                  </View>
+                </View>
 
-          {/* From Wallet */}
-          {renderWalletSelector(
-            fromWallet ? `${t('from_wallet')}: ${fromWallet.name}` : t('from_wallet'),
-            fromWallet,
-            (wallet) => {
-              setFromWallet(wallet);
-              // Reset toWallet if it's the same as the newly selected fromWallet
-              if (toWallet && toWallet.id === wallet.id) {
-                setToWallet(null);
-              }
-            },
-            showFromWallets,
-            () => {
-              setShowFromWallets(!showFromWallets);
-              setShowToWallets(false);
-            },
-            wallets
+                {/* From Wallet */}
+                {renderWalletSelector(
+                  fromWallet ? `${t('from_wallet')}: ${fromWallet.name}` : t('from_wallet'),
+                  fromWallet,
+                  (wallet) => {
+                    setFromWallet(wallet);
+                    // Reset toWallet if it's the same as the newly selected fromWallet
+                    if (toWallet && toWallet.id === wallet.id) {
+                      setToWallet(null);
+                    }
+                  },
+                  showFromWallets,
+                  () => {
+                    setShowFromWallets(!showFromWallets);
+                    setShowToWallets(false);
+                  },
+                  wallets
+                )}
+
+                {/* To Wallet */}
+                {renderWalletSelector(
+                  toWallet ? `${t('to_wallet')}: ${toWallet.name}` : t('to_wallet'),
+                  toWallet,
+                  setToWallet,
+                  showToWallets,
+                  () => {
+                    setShowToWallets(!showToWallets);
+                    setShowFromWallets(false);
+                  },
+                  availableToWallets
+                )}
+
+                {/* Amount */}
+                <View style={styles.inputContainer}>
+                  <Text style={[styles.label, { color: theme.colors.text }]}>{t('transfer_amount')} *</Text>
+                  <View style={[styles.amountInput, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
+                    <Text style={[styles.currencySymbol, { color: theme.colors.textSecondary }]}>{getCurrencySymbol()}</Text>
+                    <TextInput
+                      style={[styles.amountTextInput, { color: theme.colors.text }]}
+                      value={amount}
+                      onChangeText={setAmount}
+                      placeholder="0.00"
+                      placeholderTextColor={theme.colors.textSecondary}
+                      keyboardType="numeric"
+                    />
+                  </View>
+                  {fromWallet && (
+                    <Text style={[styles.balanceHint, { color: theme.colors.textSecondary }]}>
+                      Available: {formatWalletBalance(fromWallet.balance, fromWallet.id)}
+                    </Text>
+                  )}
+                </View>
+
+                {/* Note */}
+                <View style={styles.inputContainer}>
+                  <Text style={[styles.label, { color: theme.colors.text }]}>{t('transfer_note')}</Text>
+                  <TextInput
+                    style={[styles.textInput, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, color: theme.colors.text }]}
+                    value={note}
+                    onChangeText={setNote}
+                    placeholder={t('add_note')}
+                    placeholderTextColor={theme.colors.textSecondary}
+                    multiline
+                    numberOfLines={3}
+                  />
+                </View>
+
+                {/* Transfer Summary */}
+                {fromWallet && toWallet && amount && !isNaN(parseFloat(amount)) && (
+                  <View style={[styles.summaryCard, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
+                    <Text style={[styles.summaryTitle, { color: theme.colors.text }]}>{t('transfer_title')}</Text>
+                    <View style={styles.summaryRow}>
+                      <Text style={[styles.summaryLabel, { color: theme.colors.textSecondary }]}>{t('from_wallet')}:</Text>
+                      <Text style={[styles.summaryValue, { color: theme.colors.text }]}>{fromWallet.name}</Text>
+                    </View>
+                    <View style={styles.summaryRow}>
+                      <Text style={[styles.summaryLabel, { color: theme.colors.textSecondary }]}>{t('to_wallet')}:</Text>
+                      <Text style={[styles.summaryValue, { color: theme.colors.text }]}>{toWallet.name}</Text>
+                    </View>
+                    <View style={[styles.summaryRow, styles.summaryTotal]}>
+                      <Text style={[styles.summaryLabel, styles.totalLabel, { color: theme.colors.text }]}>{t('amount')}:</Text>
+                      <Text style={[styles.summaryValue, styles.totalValue, { color: theme.colors.primary }]}>
+                        {formatCurrency(parseFloat(amount))}
+                      </Text>
+                    </View>
+                  </View>
+                )}
+              </ScrollView>
+            </KeyboardAvoidingView>
           )}
-
-          {/* To Wallet */}
-          {renderWalletSelector(
-            toWallet ? `${t('to_wallet')}: ${toWallet.name}` : t('to_wallet'),
-            toWallet,
-            setToWallet,
-            showToWallets,
-            () => {
-              setShowToWallets(!showToWallets);
-              setShowFromWallets(false);
-            },
-            availableToWallets
-          )}
-
-          {/* Amount */}
-          <View style={styles.inputContainer}>
-            <Text style={[styles.label, { color: theme.colors.text }]}>{t('transfer_amount')} *</Text>
-            <View style={[styles.amountInput, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
-              <Text style={[styles.currencySymbol, { color: theme.colors.textSecondary }]}>{getCurrencySymbol()}</Text>
-              <TextInput
-                style={[styles.amountTextInput, { color: theme.colors.text }]}
-                value={amount}
-                onChangeText={setAmount}
-                placeholder="0.00"
-                placeholderTextColor={theme.colors.textSecondary}
-                keyboardType="numeric"
-              />
-            </View>
-            {fromWallet && (
-              <Text style={[styles.balanceHint, { color: theme.colors.textSecondary }]}>
-                Available: {formatWalletBalance(fromWallet.balance, fromWallet.id)}
-              </Text>
-            )}
-          </View>
-
-          {/* Note */}
-          <View style={styles.inputContainer}>
-            <Text style={[styles.label, { color: theme.colors.text }]}>{t('transfer_note')}</Text>
-            <TextInput
-              style={[styles.textInput, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, color: theme.colors.text }]}
-              value={note}
-              onChangeText={setNote}
-              placeholder={t('add_note')}
-              placeholderTextColor={theme.colors.textSecondary}
-              multiline
-              numberOfLines={3}
-            />
-          </View>
-
-          {/* Transfer Summary */}
-          {fromWallet && toWallet && amount && !isNaN(parseFloat(amount)) && (
-            <View style={[styles.summaryCard, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}>
-              <Text style={[styles.summaryTitle, { color: theme.colors.text }]}>{t('transfer_title')}</Text>
-              <View style={styles.summaryRow}>
-                <Text style={[styles.summaryLabel, { color: theme.colors.textSecondary }]}>{t('from_wallet')}:</Text>
-                <Text style={[styles.summaryValue, { color: theme.colors.text }]}>{fromWallet.name}</Text>
-              </View>
-              <View style={styles.summaryRow}>
-                <Text style={[styles.summaryLabel, { color: theme.colors.textSecondary }]}>{t('to_wallet')}:</Text>
-                <Text style={[styles.summaryValue, { color: theme.colors.text }]}>{toWallet.name}</Text>
-              </View>
-              <View style={[styles.summaryRow, styles.summaryTotal]}>
-                <Text style={[styles.summaryLabel, styles.totalLabel, { color: theme.colors.text }]}>{t('amount')}:</Text>
-                <Text style={[styles.summaryValue, styles.totalValue, { color: theme.colors.primary }]}>
-                  {formatCurrency(parseFloat(amount))}
-                </Text>
-              </View>
-            </View>
-          )}
-        </ScrollView>
-        </KeyboardAvoidingView>
-        )}
         </View>
       </View>
     </Modal>

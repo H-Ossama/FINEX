@@ -46,7 +46,7 @@ export interface LocalCategory {
 }
 
 class LocalStorageService {
-  
+
   async initializeDatabase(): Promise<void> {
     try {
       // Create wallets table
@@ -145,7 +145,7 @@ class LocalStorageService {
         INSERT INTO wallets (id, name, type, balance, color, icon, isActive, createdAt, updatedAt, isDirty) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `);
-      
+
       statement.executeSync([
         newWallet.id,
         newWallet.name,
@@ -187,11 +187,11 @@ class LocalStorageService {
         .filter(key => key !== 'id' && key !== 'createdAt')
         .map(key => `${key} = ?`)
         .join(', ');
-      
+
       const values = Object.entries(updates)
         .filter(([key]) => key !== 'id' && key !== 'createdAt')
         .map(([_, value]) => value);
-      
+
       const statement = db.prepareSync(`UPDATE wallets SET ${setClause}, updatedAt = ?, isDirty = 1 WHERE id = ?`);
       statement.executeSync([...values, now, id]);
     } catch (error) {
@@ -231,7 +231,7 @@ class LocalStorageService {
           INSERT INTO transactions (id, amount, description, type, date, notes, walletId, categoryId, createdAt, updatedAt, isDirty) 
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `);
-        
+
         insertStatement.executeSync([
           newTransaction.id,
           newTransaction.amount,
@@ -290,19 +290,64 @@ class LocalStorageService {
   async updateTransaction(id: string, updates: Partial<LocalTransaction>): Promise<void> {
     const now = new Date().toISOString();
     try {
-      const setClause = Object.keys(updates)
-        .filter(key => key !== 'id' && key !== 'createdAt')
-        .map(key => `${key} = ?`)
-        .join(', ');
-      
-      const values = Object.entries(updates)
-        .filter(([key]) => key !== 'id' && key !== 'createdAt')
-        .map(([_, value]) => value);
-      
-      const statement = db.prepareSync(`UPDATE transactions SET ${setClause}, updatedAt = ?, isDirty = 0 WHERE id = ?`);
-      statement.executeSync([...values, now, id]);
+      db.withTransactionSync(() => {
+        // Get old transaction for balance adjustment
+        const oldTransaction = db.getFirstSync('SELECT * FROM transactions WHERE id = ?', [id]) as any;
+        if (!oldTransaction) throw new Error('Transaction not found');
+
+        const setClause = Object.keys(updates)
+          .filter(key => key !== 'id' && key !== 'createdAt')
+          .map(key => `${key} = ?`)
+          .join(', ');
+
+        const values = Object.entries(updates)
+          .filter(([key]) => key !== 'id' && key !== 'createdAt')
+          .map(([_, value]) => value);
+
+        const statement = db.prepareSync(`UPDATE transactions SET ${setClause}, updatedAt = ?, isDirty = 1 WHERE id = ?`);
+        statement.executeSync([...values, now, id]);
+
+        // If amount, type or wallet changed, adjust balances
+        const amountChanged = updates.amount !== undefined && updates.amount !== oldTransaction.amount;
+        const typeChanged = updates.type !== undefined && updates.type !== oldTransaction.type;
+        const walletChanged = updates.walletId !== undefined && updates.walletId !== oldTransaction.walletId;
+
+        if (amountChanged || typeChanged || walletChanged) {
+          // Reverse old transaction impact
+          const oldBalanceChange = oldTransaction.type === 'INCOME' ? -oldTransaction.amount : oldTransaction.amount;
+          db.runSync('UPDATE wallets SET balance = balance + ?, updatedAt = ?, isDirty = 1 WHERE id = ?', [oldBalanceChange, now, oldTransaction.walletId]);
+
+          // Apply new transaction impact
+          const newType = updates.type || oldTransaction.type;
+          const newAmount = updates.amount !== undefined ? updates.amount : oldTransaction.amount;
+          const newWalletId = updates.walletId || oldTransaction.walletId;
+          const newBalanceChange = newType === 'INCOME' ? newAmount : -newAmount;
+          db.runSync('UPDATE wallets SET balance = balance + ?, updatedAt = ?, isDirty = 1 WHERE id = ?', [newBalanceChange, now, newWalletId]);
+        }
+      });
     } catch (error) {
       console.error('Error updating transaction:', error);
+      throw error;
+    }
+  }
+
+  async deleteTransaction(id: string): Promise<void> {
+    const now = new Date().toISOString();
+    try {
+      db.withTransactionSync(() => {
+        // Get transaction to adjust balance
+        const transaction = db.getFirstSync('SELECT * FROM transactions WHERE id = ?', [id]) as any;
+        if (!transaction) return;
+
+        // Delete the transaction
+        db.runSync('DELETE FROM transactions WHERE id = ?', [id]);
+
+        // Reverse wallet balance impact
+        const balanceChange = transaction.type === 'INCOME' ? -transaction.amount : transaction.amount;
+        db.runSync('UPDATE wallets SET balance = balance + ?, updatedAt = ?, isDirty = 1 WHERE id = ?', [balanceChange, now, transaction.walletId]);
+      });
+    } catch (error) {
+      console.error('Error deleting transaction:', error);
       throw error;
     }
   }
@@ -331,7 +376,7 @@ class LocalStorageService {
       defaultCategories.forEach(category => {
         const id = `category_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         const now = new Date().toISOString();
-        
+
         statement.executeSync([
           id,
           category.name,
@@ -372,11 +417,11 @@ class LocalStorageService {
         .filter(key => key !== 'id' && key !== 'createdAt')
         .map(key => `${key} = ?`)
         .join(', ');
-      
+
       const values = Object.entries(updates)
         .filter(([key]) => key !== 'id' && key !== 'createdAt')
         .map(([_, value]) => value);
-      
+
       const statement = db.prepareSync(`UPDATE categories SET ${setClause}, updatedAt = ?, isDirty = 0 WHERE id = ?`);
       statement.executeSync([...values, now, id]);
     } catch (error) {
@@ -514,7 +559,7 @@ class LocalStorageService {
         toWalletBalance = toWallet.balance + amount;
 
         const updateBalanceStatement = db.prepareSync('UPDATE wallets SET balance = ?, updatedAt = ?, isDirty = 1 WHERE id = ?');
-        
+
         updateBalanceStatement.executeSync([fromWalletBalance, now, fromWalletId]);
         updateBalanceStatement.executeSync([toWalletBalance, now, toWalletId]);
       });
@@ -582,7 +627,7 @@ class LocalStorageService {
       // Get transactions for the period
       const daysAgo = new Date();
       daysAgo.setDate(daysAgo.getDate() - days);
-      
+
       const transactions = db.getAllSync(`
         SELECT amount, type, date 
         FROM transactions 
@@ -596,10 +641,10 @@ class LocalStorageService {
 
       // Work backwards from current balance
       const transactionsList = (transactions as any[]).reverse();
-      
+
       for (const transaction of transactionsList) {
-        const balanceChange = transaction.type === 'INCOME' || transaction.type === 'TRANSFER' 
-          ? transaction.amount 
+        const balanceChange = transaction.type === 'INCOME' || transaction.type === 'TRANSFER'
+          ? transaction.amount
           : -transaction.amount;
         currentBalance -= balanceChange;
       }
@@ -610,9 +655,9 @@ class LocalStorageService {
 
       for (const transaction of (transactions as any[])) {
         const date = transaction.date.split('T')[0]; // Get date part only
-        
-        const balanceChange = transaction.type === 'INCOME' || transaction.type === 'TRANSFER' 
-          ? transaction.amount 
+
+        const balanceChange = transaction.type === 'INCOME' || transaction.type === 'TRANSFER'
+          ? transaction.amount
           : -transaction.amount;
         runningBalance += balanceChange;
 
@@ -704,10 +749,10 @@ class LocalStorageService {
 
   async markAsSynced(table: string, ids: string[]): Promise<void> {
     if (ids.length === 0) return;
-    
+
     const now = new Date().toISOString();
     const placeholders = ids.map(() => '?').join(',');
-    
+
     try {
       const statement = db.prepareSync(`UPDATE ${table} SET isDirty = 0, lastSynced = ? WHERE id IN (${placeholders})`);
       statement.executeSync([now, ...ids]);
@@ -745,12 +790,12 @@ class LocalStorageService {
   async clearAllData(): Promise<void> {
     try {
       console.log('🗑️ Clearing local database...');
-      
+
       // Delete all data from tables
       db.execSync('DELETE FROM transactions');
       db.execSync('DELETE FROM wallets');
       db.execSync('DELETE FROM categories');
-      
+
       // Clear sync log as well
       try {
         db.execSync('DELETE FROM sync_log');
@@ -758,7 +803,7 @@ class LocalStorageService {
         // Sync log table might not exist yet, that's okay
         console.log('Sync log table not found, skipping');
       }
-      
+
       // Reset any auto-increment sequences if they exist
       try {
         db.execSync('DELETE FROM sqlite_sequence WHERE name IN ("transactions", "wallets", "categories", "sync_log")');
@@ -766,7 +811,7 @@ class LocalStorageService {
         // This might fail if sequences don't exist, that's okay
         console.log('No sequences to reset');
       }
-      
+
       console.log('✅ Local database cleared successfully');
     } catch (error) {
       console.error('❌ Error clearing database:', error);
@@ -778,7 +823,7 @@ class LocalStorageService {
   async restoreWallet(wallet: LocalWallet): Promise<LocalWallet> {
     try {
       const now = new Date().toISOString();
-      
+
       db.runSync(
         `INSERT OR REPLACE INTO wallets (
           id, name, type, balance, color, icon, isActive, 
@@ -815,7 +860,7 @@ class LocalStorageService {
   async restoreTransaction(transaction: LocalTransaction): Promise<LocalTransaction> {
     try {
       const now = new Date().toISOString();
-      
+
       db.runSync(
         `INSERT OR REPLACE INTO transactions (
           id, amount, description, type, date, notes, walletId, categoryId,

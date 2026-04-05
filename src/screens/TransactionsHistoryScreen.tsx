@@ -24,6 +24,9 @@ import { useLocalization } from '../contexts/LocalizationContext';
 import { useAuth } from '../contexts/AuthContext';
 import { hybridDataService, HybridTransaction } from '../services/hybridDataService';
 import TransactionDetailsModal from '../components/TransactionDetailsModal';
+import AddExpenseModal from '../components/AddExpenseModal';
+import AddIncomeModal from '../components/AddIncomeModal';
+import TransferModal from '../components/TransferModal';
 import { useInterstitialAd } from '../components/InterstitialAd';
 import { useAds } from '../contexts/AdContext';
 import { useDialog } from '../contexts/DialogContext';
@@ -61,6 +64,9 @@ const TransactionsHistoryScreen = () => {
   const [searchVisible, setSearchVisible] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState<HybridTransaction | null>(null);
   const [showTransactionDetails, setShowTransactionDetails] = useState(false);
+  const [showEditExpenseModal, setShowEditExpenseModal] = useState(false);
+  const [showEditIncomeModal, setShowEditIncomeModal] = useState(false);
+  const [showEditTransferModal, setShowEditTransferModal] = useState(false);
   const [animatedValues] = useState(() => ({
     searchHeight: new Animated.Value(0),
     filterScroll: new Animated.Value(0),
@@ -289,21 +295,49 @@ const TransactionsHistoryScreen = () => {
   };
 
   const handleEditTransaction = (transaction: HybridTransaction) => {
-    // TODO: Navigate to edit transaction screen
-    console.log('Edit transaction:', transaction.id);
+    setSelectedTransaction(transaction);
+    if (transaction.type === 'EXPENSE') {
+      setShowEditExpenseModal(true);
+    } else if (transaction.type === 'INCOME') {
+      setShowEditIncomeModal(true);
+    } else if (transaction.type === 'TRANSFER') {
+      setShowEditTransferModal(true);
+    }
+    setShowTransactionDetails(false);
   };
 
-  const handleDuplicateTransaction = (transaction: HybridTransaction) => {
-    // TODO: Implement duplicate functionality
-    console.log('Duplicate transaction:', transaction.id);
+  const handleUpdateTransaction = async (id: string, updates: any) => {
+    try {
+      await hybridDataService.updateTransaction(id, updates);
+      await loadTransactions();
+    } catch (error) {
+      console.error('Error updating transaction:', error);
+      dialog.error(t('error'), t('failed_to_update_transaction'));
+    }
+  };
+
+  const handleDuplicateTransaction = async (transaction: HybridTransaction) => {
+    try {
+      const { id, createdAt, updatedAt, lastSynced, syncStatus, ...data } = transaction;
+      await hybridDataService.createTransaction({
+        ...data,
+        date: new Date().toISOString().split('T')[0],
+      });
+      await loadTransactions();
+      setShowTransactionDetails(false);
+    } catch (error) {
+      console.error('Error duplicating transaction:', error);
+      dialog.error(t('error'), t('failed_to_duplicate_transaction'));
+    }
   };
 
   const handleDeleteTransaction = async (transactionId: string) => {
     try {
-      // TODO: Implement delete functionality with hybridDataService
-      console.log('Delete transaction:', transactionId);
+      await hybridDataService.deleteTransaction(transactionId);
       // Refresh the list after deletion
       await loadTransactions();
+      // Also close details modal if it's open
+      setShowTransactionDetails(false);
     } catch (error) {
       console.error('Error deleting transaction:', error);
       dialog.error(t('error'), t('failed_to_delete_transaction'));
@@ -711,6 +745,28 @@ const TransactionsHistoryScreen = () => {
         onEdit={handleEditTransaction}
         onDuplicate={handleDuplicateTransaction}
         onDelete={handleDeleteTransaction}
+      />
+
+      <AddExpenseModal
+        visible={showEditExpenseModal}
+        onClose={() => setShowEditExpenseModal(false)}
+        editTransaction={selectedTransaction}
+        onUpdateExpense={handleUpdateTransaction}
+      />
+
+      <AddIncomeModal
+        visible={showEditIncomeModal}
+        onClose={() => setShowEditIncomeModal(false)}
+        editTransaction={selectedTransaction}
+        onUpdateIncome={handleUpdateTransaction}
+      />
+
+      <TransferModal
+        visible={showEditTransferModal}
+        onClose={() => setShowEditTransferModal(false)}
+        editTransaction={selectedTransaction}
+        onUpdateTransfer={handleUpdateTransaction}
+        onTransfer={() => { }}
       />
 
       {/* Banner Ad for free users */}

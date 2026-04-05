@@ -36,7 +36,7 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
   onDelete,
 }) => {
   const { theme } = useTheme();
-  const { formatCurrency, t } = useLocalization();
+  const { formatCurrency, t, language } = useLocalization();
   const insets = useSafeAreaInsets();
   const dialog = useDialog();
 
@@ -45,38 +45,38 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
   const getTransactionIcon = (type: string, description?: string) => {
     if (type === 'INCOME') return { name: 'trending-up', color: theme.colors.success };
     if (type === 'TRANSFER') return { name: 'swap-horizontal', color: theme.colors.primary };
-    
+
     // Smart categorization for expenses
     const desc = description?.toLowerCase() || '';
-    
-    if (desc.includes('food') || desc.includes('restaurant') || desc.includes('grocery')) 
+
+    if (desc.includes('food') || desc.includes('restaurant') || desc.includes('grocery'))
       return { name: 'restaurant', color: '#FF6B6B' };
-    if (desc.includes('gas') || desc.includes('fuel') || desc.includes('electricity') || desc.includes('utility')) 
+    if (desc.includes('gas') || desc.includes('fuel') || desc.includes('electricity') || desc.includes('utility'))
       return { name: 'flash', color: '#F39C12' };
-    if (desc.includes('netflix') || desc.includes('subscription') || desc.includes('spotify')) 
+    if (desc.includes('netflix') || desc.includes('subscription') || desc.includes('spotify'))
       return { name: 'play-circle', color: '#9B59B6' };
-    if (desc.includes('transport') || desc.includes('uber') || desc.includes('taxi')) 
+    if (desc.includes('transport') || desc.includes('uber') || desc.includes('taxi'))
       return { name: 'car', color: '#3498DB' };
-    if (desc.includes('shopping') || desc.includes('clothes') || desc.includes('store')) 
+    if (desc.includes('shopping') || desc.includes('clothes') || desc.includes('store'))
       return { name: 'bag', color: '#E67E22' };
-    if (desc.includes('health') || desc.includes('medical') || desc.includes('doctor')) 
+    if (desc.includes('health') || desc.includes('medical') || desc.includes('doctor'))
       return { name: 'medical', color: '#E74C3C' };
-    if (desc.includes('entertainment') || desc.includes('movie') || desc.includes('game')) 
+    if (desc.includes('entertainment') || desc.includes('movie') || desc.includes('game'))
       return { name: 'game-controller', color: '#8E44AD' };
-    
+
     return { name: 'card', color: theme.colors.textSecondary };
   };
 
   const formatTransactionDate = (dateStr: string) => {
     const date = new Date(dateStr);
     return {
-      full: date.toLocaleDateString('en-US', {
+      full: date.toLocaleDateString(language === 'ar' ? 'ar-SA' : language, {
         weekday: 'long',
         year: 'numeric',
         month: 'long',
         day: 'numeric',
       }),
-      time: date.toLocaleTimeString('en-US', {
+      time: date.toLocaleTimeString(language === 'ar' ? 'ar-SA' : language, {
         hour: '2-digit',
         minute: '2-digit',
       }),
@@ -84,7 +84,7 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
         const today = new Date();
         const diffTime = today.getTime() - date.getTime();
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        
+
         if (diffDays === 0) return t('today');
         if (diffDays === 1) return t('yesterday');
         if (diffDays <= 7) return `${diffDays} ${t('days_ago')}`;
@@ -129,7 +129,7 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
     >
       <View style={{ flex: 1, backgroundColor: '#1C1C1E' }}>
         <StatusBar barStyle="light-content" backgroundColor="#1C1C1E" />
-        
+
         {/* Dark Header */}
         <View style={[styles.darkHeader, { paddingTop: insets.top }]}>
           <View style={styles.headerRow}>
@@ -142,177 +142,177 @@ const TransactionDetailsModal: React.FC<TransactionDetailsModalProps> = ({
             <View style={{ width: 40 }} />
           </View>
         </View>
-        
+
         {/* Content Container */}
         <View style={[styles.contentContainer, { backgroundColor: theme.colors.background }]}>
 
-        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-          {/* Transaction Icon & Amount */}
-          <View style={[styles.heroSection, { backgroundColor: theme.colors.surface }]}>
-            <View style={[styles.iconContainer, { backgroundColor: `${icon.color}15` }]}>
-              <Ionicons name={icon.name as any} size={32} color={icon.color} />
-            </View>
-            <Text style={[
-              styles.amount,
-              { 
-                color: transaction.type === 'INCOME' 
-                  ? theme.colors.success 
-                  : transaction.type === 'TRANSFER' 
-                    ? theme.colors.primary 
-                    : '#FF3B30' 
-              }
-            ]}>
-              {transaction.type === 'INCOME' ? '+' : transaction.type === 'TRANSFER' ? '↔' : ''}
-              {formatCurrency(transaction.amount)}
-            </Text>
-            <Text style={[styles.description, { color: theme.colors.text }]}>
-              {transaction.description || `${transaction.type.toLowerCase()} transaction`}
-            </Text>
-            <View style={[styles.typeBadge, { backgroundColor: `${icon.color}20` }]}>
-              <Text style={[styles.typeText, { color: icon.color }]}>
-                {transaction.type.toLowerCase()}
+          <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+            {/* Transaction Icon & Amount */}
+            <View style={[styles.heroSection, { backgroundColor: theme.colors.surface }]}>
+              <View style={[styles.iconContainer, { backgroundColor: `${icon.color}15` }]}>
+                <Ionicons name={icon.name as any} size={32} color={icon.color} />
+              </View>
+              <Text style={[
+                styles.amount,
+                {
+                  color: transaction.type === 'INCOME'
+                    ? theme.colors.success
+                    : transaction.type === 'TRANSFER'
+                      ? theme.colors.primary
+                      : '#FF3B30'
+                }
+              ]}>
+                {transaction.type === 'INCOME' ? '+' : transaction.type === 'TRANSFER' ? '↔' : ''}
+                {formatCurrency(transaction.amount)}
               </Text>
-            </View>
-          </View>
-
-          {/* Details Section */}
-          <View style={[styles.detailsSection, { backgroundColor: theme.colors.surface }]}>
-            <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
-              {t('transaction_details_info')}
-            </Text>
-
-            {/* Date & Time */}
-            <View style={styles.detailRow}>
-              <View style={styles.detailIcon}>
-                <Ionicons name="calendar" size={20} color={theme.colors.textSecondary} />
-              </View>
-              <View style={styles.detailContent}>
-                <Text style={[styles.detailLabel, { color: theme.colors.textSecondary }]}>
-                  {t('date_time')}
-                </Text>
-                <Text style={[styles.detailValue, { color: theme.colors.text }]}>
-                  {dateInfo.full}
-                </Text>
-                <Text style={[styles.detailSubValue, { color: theme.colors.textSecondary }]}>
-                  {dateInfo.time} {dateInfo.relative && `• ${dateInfo.relative}`}
+              <Text style={[styles.description, { color: theme.colors.text }]}>
+                {transaction.description || t('transaction_without_description')}
+              </Text>
+              <View style={[styles.typeBadge, { backgroundColor: `${icon.color}20` }]}>
+                <Text style={[styles.typeText, { color: icon.color }]}>
+                  {t(transaction.type.toLowerCase())}
                 </Text>
               </View>
             </View>
 
-            {/* Transaction ID */}
-            <View style={styles.detailRow}>
-              <View style={styles.detailIcon}>
-                <MaterialCommunityIcons name="identifier" size={20} color={theme.colors.textSecondary} />
-              </View>
-              <View style={styles.detailContent}>
-                <Text style={[styles.detailLabel, { color: theme.colors.textSecondary }]}>
-                  {t('transaction_id')}
-                </Text>
-                <Text style={[styles.detailValue, { color: theme.colors.text }]} numberOfLines={1}>
-                  {transaction.id}
-                </Text>
-              </View>
-            </View>
+            {/* Details Section */}
+            <View style={[styles.detailsSection, { backgroundColor: theme.colors.surface }]}>
+              <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
+                {t('transaction_details_info')}
+              </Text>
 
-            {/* Wallet */}
-            {transaction.walletId && (
+              {/* Date & Time */}
               <View style={styles.detailRow}>
                 <View style={styles.detailIcon}>
-                  <Ionicons name="wallet" size={20} color={theme.colors.textSecondary} />
+                  <Ionicons name="calendar" size={20} color={theme.colors.textSecondary} />
                 </View>
                 <View style={styles.detailContent}>
                   <Text style={[styles.detailLabel, { color: theme.colors.textSecondary }]}>
-                    {t('wallet')}
+                    {t('date_time')}
                   </Text>
                   <Text style={[styles.detailValue, { color: theme.colors.text }]}>
-                    {transaction.walletId}
+                    {dateInfo.full}
+                  </Text>
+                  <Text style={[styles.detailSubValue, { color: theme.colors.textSecondary }]}>
+                    {dateInfo.time} {dateInfo.relative && `• ${dateInfo.relative}`}
                   </Text>
                 </View>
               </View>
-            )}
 
-            {/* Notes */}
-            {transaction.notes && (
+              {/* Transaction ID */}
               <View style={styles.detailRow}>
                 <View style={styles.detailIcon}>
-                  <Ionicons name="document-text" size={20} color={theme.colors.textSecondary} />
+                  <MaterialCommunityIcons name="identifier" size={20} color={theme.colors.textSecondary} />
                 </View>
                 <View style={styles.detailContent}>
                   <Text style={[styles.detailLabel, { color: theme.colors.textSecondary }]}>
-                    {t('transaction_notes')}
+                    {t('transaction_id')}
                   </Text>
-                  <Text style={[styles.detailValue, { color: theme.colors.text }]}>
-                    {transaction.notes}
+                  <Text style={[styles.detailValue, { color: theme.colors.text }]} numberOfLines={1}>
+                    {transaction.id}
                   </Text>
                 </View>
               </View>
-            )}
 
-            {/* Sync Status */}
-            <View style={styles.detailRow}>
-              <View style={styles.detailIcon}>
-                <Ionicons 
-                  name={transaction.syncStatus === 'synced' ? 'cloud-done' : 'cloud-upload'} 
-                  size={20} 
-                  color={transaction.syncStatus === 'synced' ? theme.colors.success : theme.colors.warning} 
-                />
+              {/* Wallet */}
+              {transaction.walletId && (
+                <View style={styles.detailRow}>
+                  <View style={styles.detailIcon}>
+                    <Ionicons name="wallet" size={20} color={theme.colors.textSecondary} />
+                  </View>
+                  <View style={styles.detailContent}>
+                    <Text style={[styles.detailLabel, { color: theme.colors.textSecondary }]}>
+                      {t('wallet')}
+                    </Text>
+                    <Text style={[styles.detailValue, { color: theme.colors.text }]}>
+                      {transaction.walletId}
+                    </Text>
+                  </View>
+                </View>
+              )}
+
+              {/* Notes */}
+              {transaction.notes && (
+                <View style={styles.detailRow}>
+                  <View style={styles.detailIcon}>
+                    <Ionicons name="document-text" size={20} color={theme.colors.textSecondary} />
+                  </View>
+                  <View style={styles.detailContent}>
+                    <Text style={[styles.detailLabel, { color: theme.colors.textSecondary }]}>
+                      {t('transaction_notes')}
+                    </Text>
+                    <Text style={[styles.detailValue, { color: theme.colors.text }]}>
+                      {transaction.notes}
+                    </Text>
+                  </View>
+                </View>
+              )}
+
+              {/* Sync Status */}
+              <View style={styles.detailRow}>
+                <View style={styles.detailIcon}>
+                  <Ionicons
+                    name={transaction.syncStatus === 'synced' ? 'cloud-done' : 'cloud-upload'}
+                    size={20}
+                    color={transaction.syncStatus === 'synced' ? theme.colors.success : theme.colors.warning}
+                  />
+                </View>
+                <View style={styles.detailContent}>
+                  <Text style={[styles.detailLabel, { color: theme.colors.textSecondary }]}>
+                    {t('sync_status')}
+                  </Text>
+                  <Text style={[
+                    styles.detailValue,
+                    { color: transaction.syncStatus === 'synced' ? theme.colors.success : theme.colors.warning }
+                  ]}>
+                    {t(transaction.syncStatus || 'unknown')}
+                  </Text>
+                </View>
               </View>
-              <View style={styles.detailContent}>
-                <Text style={[styles.detailLabel, { color: theme.colors.textSecondary }]}>
-                  {t('sync_status')}
-                </Text>
-                <Text style={[
-                  styles.detailValue, 
-                  { color: transaction.syncStatus === 'synced' ? theme.colors.success : theme.colors.warning }
-                ]}>
-                  {t(transaction.syncStatus || 'unknown')}
-                </Text>
+
+              {/* Creation Date */}
+              <View style={styles.detailRow}>
+                <View style={styles.detailIcon}>
+                  <Ionicons name="time" size={20} color={theme.colors.textSecondary} />
+                </View>
+                <View style={styles.detailContent}>
+                  <Text style={[styles.detailLabel, { color: theme.colors.textSecondary }]}>
+                    {t('created_at')}
+                  </Text>
+                  <Text style={[styles.detailValue, { color: theme.colors.text }]}>
+                    {new Date(transaction.createdAt).toLocaleString(language === 'ar' ? 'ar-SA' : language)}
+                  </Text>
+                </View>
               </View>
             </View>
 
-            {/* Creation Date */}
-            <View style={styles.detailRow}>
-              <View style={styles.detailIcon}>
-                <Ionicons name="time" size={20} color={theme.colors.textSecondary} />
-              </View>
-              <View style={styles.detailContent}>
-                <Text style={[styles.detailLabel, { color: theme.colors.textSecondary }]}>
-                  {t('created_at')}
-                </Text>
-                <Text style={[styles.detailValue, { color: theme.colors.text }]}>
-                  {new Date(transaction.createdAt).toLocaleString()}
-                </Text>
-              </View>
+            {/* Action Buttons */}
+            <View style={styles.actionsSection}>
+              <TouchableOpacity
+                style={[styles.actionButton, { backgroundColor: theme.colors.primary }]}
+                onPress={handleEdit}
+              >
+                <Ionicons name="create" size={20} color="white" />
+                <Text style={styles.actionButtonText}>{t('edit')}</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.actionButton, { backgroundColor: theme.colors.surface, borderWidth: 1, borderColor: theme.colors.border }]}
+                onPress={handleDuplicate}
+              >
+                <Ionicons name="copy" size={20} color={theme.colors.text} />
+                <Text style={[styles.actionButtonText, { color: theme.colors.text }]}>{t('duplicate')}</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.actionButton, { backgroundColor: '#FF3B30' }]}
+                onPress={handleDelete}
+              >
+                <Ionicons name="trash" size={20} color="white" />
+                <Text style={styles.actionButtonText}>{t('delete')}</Text>
+              </TouchableOpacity>
             </View>
-          </View>
-
-          {/* Action Buttons */}
-          <View style={styles.actionsSection}>
-            <TouchableOpacity 
-              style={[styles.actionButton, { backgroundColor: theme.colors.primary }]}
-              onPress={handleEdit}
-            >
-              <Ionicons name="create" size={20} color="white" />
-              <Text style={styles.actionButtonText}>{t('edit')}</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={[styles.actionButton, { backgroundColor: theme.colors.surface, borderWidth: 1, borderColor: theme.colors.border }]}
-              onPress={handleDuplicate}
-            >
-              <Ionicons name="copy" size={20} color={theme.colors.text} />
-              <Text style={[styles.actionButtonText, { color: theme.colors.text }]}>{t('duplicate')}</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={[styles.actionButton, { backgroundColor: '#FF3B30' }]}
-              onPress={handleDelete}
-            >
-              <Ionicons name="trash" size={20} color="white" />
-              <Text style={styles.actionButtonText}>{t('delete')}</Text>
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
+          </ScrollView>
         </View>
       </View>
     </Modal>
